@@ -1,0 +1,50 @@
+{{ if .Values.minio.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio
+spec:
+  selector:
+    app: minio
+  ports:
+  - port: 9000
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: minio
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: minio
+        image: minio/minio
+        args:
+        - server
+        - /data
+        env:
+        - {name: "MINIO_ACCESS_KEY", valueFrom: {secretKeyRef: {name: {{ .Values.minio.envVarsSecretName }}, key: "MINIO_ACCESS_KEY"}}}
+        - {name: "MINIO_SECRET_KEY", valueFrom: {secretKeyRef: {name: {{ .Values.minio.envVarsSecretName }}, key: "MINIO_SECRET_KEY"}}}
+        ports:
+        - containerPort: 9000
+        resources:
+          requests:
+            cpu: 1m
+            memory: 50Mi
+        volumeMounts:
+        - name: minio-data
+          mountPath: /data
+          subPath: data
+      volumes:
+      - name: minio-data
+        gcePersistentDisk:
+          pdName: {{ .Values.minio.persistentDiskName }}
+          fsType: ext4
+{{ end }}

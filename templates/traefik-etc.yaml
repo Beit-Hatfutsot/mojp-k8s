@@ -1,0 +1,69 @@
+{{ if .Values.traefik.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: etc-traefik
+data:
+  traefik.toml: |
+    # https://docs.traefik.io/configuration/commons/
+    defaultEntryPoints = ["http", "https"]
+    
+    [entryPoints]
+        [entryPoints.http]
+        address = ":80"
+          [entryPoints.http.redirect]
+          entryPoint = "https"
+        
+        [entryPoints.https]
+        address = ":443"
+          [entryPoints.https.tls]
+    
+    # let's encrypt automatic ssl certificate issue and renewal
+    [acme]
+    email = "ori@uumpa.com"
+    storage = "/traefic-acme/acme.json"
+    entryPoint = "https"
+    [[acme.domains]]
+    main = "test-dbs.bh.org.il"
+    [[acme.domains]]
+    main = "test-api.dbs.bh.org.il"
+    [[acme.domains]]
+    main = "dbs.bh.org.il"
+    [[acme.domains]]
+    main = "api.dbs.bh.org.il"
+
+    [file]
+    
+    [backends]
+      [backends.back]
+        [backends.back.servers.server1]
+          url = "http://back"
+      
+      [backends.v1_docs]
+        [backends.v1_docs.servers.server1]
+          url = "http://back:8081"
+      
+      [backends.front]
+        [backends.front.servers.server1]
+          url = "http://front"
+    
+    [frontends]
+      [frontends.back]
+      backend="back"
+      
+      [frontends.api]
+      backend="back"
+        [frontends.api.routes.route1]
+          rule = "Host: api.dbs.bh.org.il, test-api.dbs.bh.org.il"
+            
+      [frontends.v1_docs]
+      backend="v1_docs"
+        [frontends.v1_docs.routes.route1]
+          rule = "Path: /v1/docs;ReplacePath: /v1/docs"
+      
+      [frontends.front]
+      backend="front"
+        [frontends.front.routes.route1]
+          rule = "Host: dbs.bh.org.il, test-dbs.bh.org.il"
+
+{{ end }}

@@ -1,0 +1,43 @@
+{{ if .Values.pipelines.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: pipelines
+spec:
+  ports:
+  - port: 5000
+  selector:
+    app: pipelines
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: pipelines
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  template:
+    metadata:
+      labels:
+        app: pipelines
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      containers:
+      - name: pipelines
+        image: {{ .Values.pipelines.image }}
+        args: ["server"]
+        ports:
+        - containerPort: 5000
+        env:
+        - {name: "S3_BUCKET_PREFIX", value: ""}
+        - {name: "AWS_ACCESS_KEY_ID", valueFrom: {secretKeyRef: {name: {{ .Values.pipelines.envVarsSecretName }}, key: "MINIO_ACCESS_KEY"}}}
+        - {name: "AWS_SECRET_ACCESS_KEY", valueFrom: {secretKeyRef: {name: {{ .Values.pipelines.envVarsSecretName }}, key: "MINIO_SECRET_KEY"}}}
+        - {name: "S3_ENDPOINT_URL", value: "http://minio:9000"}
+        - {name: "SITEMAP_ES_HOST", value: {{ .Values.pipelines.sitemapEsHost | quote }}}
+        - {name: "SITEMAP_ES_INDEX", value: {{ .Values.pipelines.sitemapEsIndex | quote }}}
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "10Mi"
+{{ end }}

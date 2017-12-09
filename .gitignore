@@ -99,3 +99,8 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+.env
+app_server.yaml
+front-nginx-prerender.conf
+secret-*

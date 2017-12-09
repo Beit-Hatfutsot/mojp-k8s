@@ -1,0 +1,40 @@
+{{ if .Values.back.enabled }}
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: back
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: back
+    spec:
+      containers:
+      - name: back
+        image: {{ .Values.back.image | quote }}
+        ports:
+        - {containerPort: 80}
+        - {containerPort: 8081}
+        resources:
+          requests: {cpu: 20m}
+        volumeMounts:
+        - {mountPath: /etc/bhs, name: etc-bhs, readOnly: true}
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+      volumes:
+      - name: etc-bhs
+        secret:
+          secretName: {{ .Values.back.etcBhsSecretName | quote }}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: back}
+spec:
+  ports:
+  - name: '80'
+    port: 80
+  - name: '8081'
+    port: 8081
+  selector: {app: back}
+{{ end }}
