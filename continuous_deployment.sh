@@ -57,9 +57,9 @@ fi
 ! docker pull "${K8S_OPS_DOCKER_IMAGE}" &&\
     echo "failed to pull docker image" && exit 1
 
-! docker run -it -v "`pwd`/k8s-ops-secret.json:/k8s-ops/secret.json"
-                 -v "`pwd`/${K8S_OPS_REPO_DIRECTORY}:/ops"
-                 "${K8S_OPS_DOCKER_IMAGE}"
+! docker run -it -v "`pwd`/k8s-ops-secret.json:/k8s-ops/secret.json" \
+                 -v "`pwd`/${K8S_OPS_REPO_DIRECTORY}:/ops" \
+                 "${K8S_OPS_DOCKER_IMAGE}" \
                  -c "source ~/.bashrc && source switch_environment.sh ${K8S_OPS_ENVIRONMENT};
                      ${DEPLOYMENT_SCRIPT}" &&\
     echo "failed to run DEPLOYMENT_SCRIPT: ${DEPLOYMENT_SCRIPT}" && exit 1
