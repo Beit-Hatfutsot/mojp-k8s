@@ -3,7 +3,7 @@ back:
   image: gcr.io/bh-org-01/mojp-dbs-back:f4c5a0c0b7c0d77faa8c07466f3fd57f8b7f0786
 front:
   etcBhsSecretName: etc-bhs
-  image: gcr.io/bh-org-01/mojp-dbs-front:f9236c4ee3648c31be44f9805ac84a8c0f718741
+  image: gcr.io/bh-org-01/mojp-dbs-front:fbeabfd1846f294c25b0024d5d21c84c3ea30d42
 global:
   defaultNodePool: default-pool
 minio:
