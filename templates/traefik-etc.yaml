@@ -27,10 +27,10 @@ data:
     main = "test-dbs.bh.org.il"
     [[acme.domains]]
     main = "test-api.dbs.bh.org.il"
-    [[acme.domains]]
-    main = "dbs.bh.org.il"
-    [[acme.domains]]
-    main = "api.dbs.bh.org.il"
+    # [[acme.domains]]
+    # main = "dbs.bh.org.il"
+    # [[acme.domains]]
+    # main = "api.dbs.bh.org.il"
 
     [file]
     
