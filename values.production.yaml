@@ -1,6 +1,6 @@
 back:
   etcBhsSecretName: etc-bhs
-  image: gcr.io/bh-org-01/mojp-dbs-back:f4c5a0c0b7c0d77faa8c07466f3fd57f8b7f0786
+  image: gcr.io/bh-org-01/mojp-dbs-back:0051e9ac170d9c42dd4c3d2f3a7ce7247d33663e
 front:
   etcBhsSecretName: etc-bhs
   image: gcr.io/bh-org-01/mojp-dbs-front:fbeabfd1846f294c25b0024d5d21c84c3ea30d42
@@ -21,7 +21,7 @@ traefik:
   acmeDomains: "[[acme.domains]]\n  main = \"test-dbs.bh.org.il\"\n[[acme.domains]]\n\
     \  main = \"test-api.dbs.bh.org.il\"\n"
   acmeEmail: ori@uumpa.com
+  enableCjhProxy: true
   frontHostRule: 'Host: dbs.bh.org.il, test-dbs.bh.org.il;'
   loadBalancerIP: 35.205.123.187
   nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
-  enableCjhProxy: true
