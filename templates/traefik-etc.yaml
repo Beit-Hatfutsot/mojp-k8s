@@ -6,28 +6,36 @@ metadata:
 data:
   traefik.toml: |
     # https://docs.traefik.io/configuration/commons/
+
+    {{ if .Values.global.debug }}
+    debug = true
+    {{ end }}
+
     defaultEntryPoints = ["http", "https"]
     
     [entryPoints]
         [entryPoints.http]
-        address = ":80"
-          [entryPoints.http.redirect]
-          entryPoint = "https"
+          address = ":80"
+            [entryPoints.http.redirect]
+              entryPoint = "https"
         
         [entryPoints.https]
-        address = ":443"
-          [entryPoints.https.tls]
-    
+          address = ":443"
+            [entryPoints.https.tls]
+
+    {{ if .Values.traefik.acmeEmail }}
     # let's encrypt automatic ssl certificate issue and renewal
     [acme]
-      email = {{ .values.acmeEmail | quote }}
+      email = {{ .Values.traefik.acmeEmail | quote }}
       storage = "/traefic-acme/acme.json"
       entryPoint = "https"
-      {{ .Values.acmeDomains }}
+{{ .Values.traefik.acmeDomains | indent 6 }}
+    {{ end }}
 
     [file]
     
     [backends]
+      {{ if .Values.back.enabled }}
       [backends.back]
         [backends.back.servers.server1]
           url = "http://back"
@@ -35,28 +43,83 @@ data:
       [backends.v1_docs]
         [backends.v1_docs.servers.server1]
           url = "http://back:8081"
-      
+      {{ end }}
+
+      {{ if .Values.pipelines.enabled }}
+      [backends.pipelines]
+        [backends.pipelines.servers.server1]
+          # use nginx for http basic authentication
+          url = "http://nginx:8081"
+      {{ end }}
+
+      {{ if .Values.front.enabled }}
       [backends.front]
         [backends.front.servers.server1]
           url = "http://front"
+      {{ end }}
+
+      {{ if .Values.traefik.enableCjhProxy }}
+      [backends.cjhproxy]
+        [backends.cjhproxy.servers.server1]
+          url = "http://67.111.179.108:8080"
+      {{ end }}
+
+      {{ if .Values.global.enableSitemap }}
+      [backends.sitemap]
+        [backends.sitemap.servers.server1]
+          url = "http://nginx:8082"
+      {{ end }}
+
+      {{ if .Values.minio.enabled }}
+      [backends.minio]
+        [backends.minio.servers.server1]
+          url = "http://minio:9000"
+      {{ end }}
     
     [frontends]
-      [frontends.back]
-        backend="back"
-
-        [frontends.v1_docs]
-          backend="v1_docs"
-            [frontends.v1_docs.routes.route1]
-              rule = "{{ .Values.apiHostRule }} Path: /v1/docs; ReplacePath: /v1/docs"
-
-        [frontends.api]
-          backend="back"
-            [frontends.api.routes.route1]
-              rule = "{{ .Values.apiHostRule }}"
-      
+      {{ if .Values.front.enabled }}
       [frontends.front]
         backend="front"
           [frontends.front.routes.route1]
-            rule = "{{ .Values.dbsHostRule }}"
+            rule = "{{ .Values.traefik.frontHostRule }}"
+      {{ end }}
+
+      {{ if .Values.traefik.enableCjhProxy }}
+      [frontends.cjhproxy]
+        backend="cjhproxy"
+          [frontends.cjhproxy.routes.route1]
+            rule = "{{ .Values.traefik.frontHostRule }} PathPrefixStrip: /cjh"
+      {{ end }}
+
+      {{ if .Values.pipelines.enabled }}
+      [frontends.pipelines]
+        backend="pipelines"
+          [frontends.pipelines.routes.route1]
+            rule = "PathPrefixStrip: /pipelines"
+      {{ end }}
+
+      {{ if .Values.back.enabled }}
+      [frontends.v1_docs]
+        backend="v1_docs"
+          [frontends.v1_docs.routes.route1]
+            rule = "Path: /v1/docs; ReplacePath: /v1/docs"
+
+      [frontends.back]
+        backend="back"
+      {{ end }}
+
+      {{ if .Values.global.enableSitemap }}
+      [frontends.sitemap]
+        backend="sitemap"
+          [frontends.sitemap.routes.route1]
+            rule = "{{ .Values.traefik.frontHostRule }} PathPrefix: /sitemap"
+      {{ end }}
+
+      {{ if .Values.minio.enabled }}
+      [frontends.minio]
+        backend="minio"
+          [frontends.minio.routes.route1]
+            rule = "PathPrefix: /minio"
+      {{ end }}
 
 {{ end }}

@@ -6,26 +6,22 @@ front:
   image: gcr.io/bh-org-01/mojp-dbs-front:fbeabfd1846f294c25b0024d5d21c84c3ea30d42
 global:
   defaultNodePool: default-pool
+  enableSitemap: true
 minio:
   envVarsSecretName: env-vars
   persistentDiskName: dbs-production-minio-data
+nginx:
+  htpasswdSecretName: nginx-htpasswd
 pipelines:
   envVarsSecretName: env-vars
-  image: gcr.io/bh-org-01/orihoch-dbs-back-pipelines:f36618e2fdb61813ef0fb473bd85d1f11437ee3b
+  image: orihoch/mojp-dbs-back-pipelines:sitemap-aws-principal-patch
   sitemapEsHost: bhs-prod-db
   sitemapEsIndex: mojp-prod
 traefik:
+  acmeDomains: "[[acme.domains]]\n  main = \"test-dbs.bh.org.il\"\n[[acme.domains]]\n\
+    \  main = \"test-api.dbs.bh.org.il\"\n"
+  acmeEmail: ori@uumpa.com
+  frontHostRule: 'Host: dbs.bh.org.il, test-dbs.bh.org.il;'
   loadBalancerIP: 35.205.123.187
   nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
-  dbsHostRule: "Host: dbs.bh.org.il, test-dbs.bh.org.il;"
-  apiHostRule: "Host: api.dbs.bh.org.il, test-api.dbs.bh.org.il;"
-  acmeEmail: ori@uumpa.com
-  acmeDomains: |
-      [[acme.domains]]
-        main = "test-dbs.bh.org.il"
-      [[acme.domains]]
-        main = "test-api.dbs.bh.org.il"
-      # [[acme.domains]]
-      #   main = "dbs.bh.org.il"
-      # [[acme.domains]]
-      #   main = "api.dbs.bh.org.il"
+  enableCjhProxy: true

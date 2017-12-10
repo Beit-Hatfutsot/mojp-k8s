@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source k8s/connect.sh
+source connect.sh
 
 # force an update for a K8S deployment by setting a label with unix timestamp
 
