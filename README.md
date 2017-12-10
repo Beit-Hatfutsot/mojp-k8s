@@ -1,5 +1,7 @@
 # The Museum Of The Jewish People Kubernetes Environment
 
+[![Build Status](https://travis-ci.org/Beit-Hatfutsot/mojp-k8s.svg?branch=master)](https://travis-ci.org/Beit-Hatfutsot/mojp-k8s)
+
 ## Why can't it just work all the time?
 
 [![it can - with Kubernetes!](it-can-with-kubernetes.png)](https://cloud.google.com/kubernetes-engine/kubernetes-comic/)
