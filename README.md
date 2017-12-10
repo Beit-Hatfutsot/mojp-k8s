@@ -61,6 +61,7 @@ Each environment should have the following files in the root of the project:
 
 - `.env.ENVIRONMENT_NAME` *(required)*: the basic environment connection details
 - `values.ENVIRONMENT_NAME.yaml` *(optional)*: override default helm chart values for this namespace
+- `values.ENVIRONMENT_NAME.auto-updated.yaml` *(optional)*: override environment values from automatically updated actions (e.g. continuous deployment)
 
 These files shouldn't contain any secrets and can be committed to a public repo.
 
@@ -117,6 +118,8 @@ Additionally, you can to use `force_update.sh` to force an update on a specific 
 The default values are at `values.yaml` - these are used in the chart template files
 
 Each environment adds or overrides with environment specific settings using `values.production.yaml` which is merged with the `values.yaml` file
+
+Automation scripts can also use the `values.production.auto-updated.yaml` file to update values programatically using the `update_yaml.py` script
 
 ## Secrets
 
@@ -257,11 +260,17 @@ Reserve a static IP:
 gcloud compute addresses create mojp-production-traefik --region=europe-west1
 ```
 
-Get the IP address and update the traefik values:
+Get the static IP address:
 
 ```
-IP=`gcloud compute addresses describe mojp-production-traefik --region=europe-west1 | grep ^address: | cut -d" " -f2 -`
-./update_yaml.py '{"traefik":{"loadBalancerIP":"'$IP'"}}' "values.${K8S_ENVIRONMENT_NAME}.yaml"
+gcloud compute addresses describe mojp-production-traefik --region=europe-west1 | grep ^address:
+```
+
+Update in `values.production.yaml`:
+
+```
+traefik:
+  loadBalancerIP: <THE_STATIC_IP>
 ```
 
 #### Http authentication
@@ -284,10 +293,11 @@ set the file as a secret on k8s:
 kubectl create secret generic nginx-htpasswd --from-file=./secret-nginx-htpasswd
 ```
 
-Update the values to enable:
+Update the value in `values.production.yaml`:
 
 ```
-./update_yaml.py '{"nginx":{"htpasswdSecretName":"nginx-htpasswd"}}' "values.${K8S_ENVIRONMENT_NAME}.yaml"
+nginx:
+  htpasswdSecretName: nginx-htpasswd
 ```
 
 ## Common Tasks
