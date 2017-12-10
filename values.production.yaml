@@ -17,3 +17,15 @@ pipelines:
 traefik:
   loadBalancerIP: 35.205.123.187
   nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
+  dbsHostRule: "Host: dbs.bh.org.il, test-dbs.bh.org.il;"
+  apiHostRule: "Host: api.dbs.bh.org.il, test-api.dbs.bh.org.il;"
+  acmeEmail: ori@uumpa.com
+  acmeDomains: |
+      [[acme.domains]]
+        main = "test-dbs.bh.org.il"
+      [[acme.domains]]
+        main = "test-api.dbs.bh.org.il"
+      # [[acme.domains]]
+      #   main = "dbs.bh.org.il"
+      # [[acme.domains]]
+      #   main = "api.dbs.bh.org.il"

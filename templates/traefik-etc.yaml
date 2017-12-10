@@ -20,17 +20,10 @@ data:
     
     # let's encrypt automatic ssl certificate issue and renewal
     [acme]
-    email = "ori@uumpa.com"
-    storage = "/traefic-acme/acme.json"
-    entryPoint = "https"
-    [[acme.domains]]
-    main = "test-dbs.bh.org.il"
-    [[acme.domains]]
-    main = "test-api.dbs.bh.org.il"
-    # [[acme.domains]]
-    # main = "dbs.bh.org.il"
-    # [[acme.domains]]
-    # main = "api.dbs.bh.org.il"
+      email = {{ .values.acmeEmail | quote }}
+      storage = "/traefic-acme/acme.json"
+      entryPoint = "https"
+      {{ .Values.acmeDomains }}
 
     [file]
     
@@ -49,21 +42,21 @@ data:
     
     [frontends]
       [frontends.back]
-      backend="back"
-      
-      [frontends.api]
-      backend="back"
-        [frontends.api.routes.route1]
-          rule = "Host: api.dbs.bh.org.il, test-api.dbs.bh.org.il"
-            
-      [frontends.v1_docs]
-      backend="v1_docs"
-        [frontends.v1_docs.routes.route1]
-          rule = "Path: /v1/docs;ReplacePath: /v1/docs"
+        backend="back"
+
+        [frontends.v1_docs]
+          backend="v1_docs"
+            [frontends.v1_docs.routes.route1]
+              rule = "{{ .Values.apiHostRule }} Path: /v1/docs; ReplacePath: /v1/docs"
+
+        [frontends.api]
+          backend="back"
+            [frontends.api.routes.route1]
+              rule = "{{ .Values.apiHostRule }}"
       
       [frontends.front]
-      backend="front"
-        [frontends.front.routes.route1]
-          rule = "Host: dbs.bh.org.il, test-dbs.bh.org.il"
+        backend="front"
+          [frontends.front.routes.route1]
+            rule = "{{ .Values.dbsHostRule }}"
 
 {{ end }}
