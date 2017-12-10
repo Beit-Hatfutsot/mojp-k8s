@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# this should be modified according to instructions in the README
 OPENSSL_CMD="openssl aes-256-cbc -K $encrypted_f32f35ec6644_key -iv $encrypted_f32f35ec6644_iv -in mojp-k8s-ops-json-secret.enc -out k8s-ops-secret.json -d"
 
 # this deployment script will upgrade the entire environment - which is used in the k8s repo
@@ -42,7 +41,7 @@ echo "${TRAVIS_COMMIT_MESSAGE}" | grep -- --no-deploy >/dev/null &&\
      echo "--no-deploy commit flag is set - skipping deployment" && exit 0
 
 # decrypt the service account secret json
-! openssl aes-256-cbc -K $encrypted_f32f35ec6644_key -iv $encrypted_f32f35ec6644_iv -in mojp-k8s-ops-json-secret.enc -out k8s-ops-secret.json -d &&\
+! $OPENSSL_CMD &&\
     echo "failed to decrypt service account secret" && exit 1
 
 if [ "${K8S_OPS_REPO_SLUG}" == "${TRAVIS_REPO_SLUG}" ]; then
