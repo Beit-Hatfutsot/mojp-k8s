@@ -58,4 +58,7 @@ spec:
   selector:
     app: traefik
   type: LoadBalancer
+  {{ if .Values.traefik.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.traefik.loadBalancerIP | quote }}
+  {{ end }}
 {{ end }}

@@ -15,4 +15,5 @@ pipelines:
   sitemapEsHost: bhs-prod-db
   sitemapEsIndex: mojp-prod
 traefik:
+  loadBalancerIP: 35.205.123.187
   nodeHostName: gke-mojp-default-pool-33bac5d8-rm42

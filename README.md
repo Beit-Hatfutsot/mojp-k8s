@@ -54,7 +54,7 @@ Each environment should have the following files in the root of the project:
 - `.env.ENVIRONMENT_NAME` *(required)*: the basic environment connection details
 - `values.ENVIRONMENT_NAME.yaml` *(optional)*: override default helm chart values for this namespace
 
-These files shouldn't contain any secrets and can be committeed to a public repo.
+These files shouldn't contain any secrets and can be committed to a public repo.
 
 ## Connecting to an environment
 
@@ -220,3 +220,20 @@ Where the tag is the git commit sha
 This allows the continuous deployment to update the image tag ASAP without waiting for it to be built.
 
 Kubernetes will make sure the deployment occurs only when the image is ready.
+
+## Load Balancer - static IP
+
+Traefik uses a load balancer service which by default has a temporary IP which changes on updates.
+
+Reserve a static IP:
+
+```
+gcloud compute addresses create mojp-production-traefik --region=europe-west1
+```
+
+Get the IP address and update the traefik values:
+
+```
+IP=`gcloud compute addresses describe mojp-production-traefik --region=europe-west1 | grep ^address: | cut -d" " -f2 -`
+./update_yaml.py '{"traefik":{"loadBalancerIP":"'$IP'"}}' "values.${K8S_ENVIRONMENT_NAME}.yaml"
+```
