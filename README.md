@@ -9,14 +9,20 @@
 You can interact with the Kubernetes environment in the following ways - 
 
 * [Google Cloud Shell](https://cloud.google.com/shell/docs/quickstart) - The recommended and easiest way for running management commands. Just setup a Google Cloud account and enable billing (you get 300$ free, you can setup billing alerts to avoid paying by mistake).
-* Any modern PC / OS should also work, you will just need to install some basic dependencies like Docker and Google Cloud SDK (possibly more TBD). The main problem with working from local PC is the network connection, if you have a stable, fast connection and know how to install the dependencies, you might be better of running from your own PC.
-* Docker - This repo contains a Dockerfile which can be used to interact with the environment from CI / CD / automation tools. See the Docker Ops section below for more details.
-
-This guide will assume you are using Google Cloud Shell because it makes the process easier and faster, but you can follow along from a local PC as well, you might have to install some dependencies manually though.
+* Any modern PC / OS should also work, you will just need to install some basic dependencies like Docker and Google Cloud SDK (possibly more). The main problem with working from local PC is the network connection, if you have a stable, fast connection and know how to install the dependencies, you might be better of running from your own PC.
+* Docker + Google Cloud service account - for automation / CI / CD. See the Docker Ops section below for more details.
 
 You can use the cloud shell file editor to edit files, just be sure to configure it to indentation of 2 spaces (not tabs - because they interfere with the yaml files)
 
-## Authorize with GitHub and clone
+## Installation and setup
+
+#### Authorize with Google Cloud
+
+On google cloud shell it's not necessary, your shell is linked to your personal user - any permissions given by any project to your google user will be available.
+
+From local PC run `gcloud auth login` and follow the instructions
+
+#### Authorize with GitHub and clone the k8s repo
 
 Having infrastructure as code means you should be able to push any changes to infrastructure configuration back to GitHub.
 
@@ -43,11 +49,11 @@ Change to the mojp-k8s directory, all following commands should run from that di
 cd mojp-k8s
 ```
 
-## Create a new cluster
+#### Create a new cluster
 
 Creating a new cluster is easiest using the Google Kubernetes Engine UI. It's recommended to start with a minimum of 1 n1-standard-1 node. Need to bear in mind that kubernetes consumes some resources as well.
 
-## Create a new environment
+#### Create a new environment
 
 Each environment should have the following files in the root of the project:
 
@@ -56,7 +62,7 @@ Each environment should have the following files in the root of the project:
 
 These files shouldn't contain any secrets and can be committed to a public repo.
 
-## Connecting to an environment
+#### Connecting to an environment
 
 ```
 source switch_environment.sh production
@@ -68,7 +74,7 @@ On cloud shell, if you are mostly using this environment / project, add this to 
 cd mojp-k8s; source switch_environment.sh production
 ```
 
-## Initialize / Upgrade Helm
+#### Initialize / Upgrade Helm
 
 Installs / upgrades the Helm server-side component on the cluster
 
@@ -76,37 +82,49 @@ Installs / upgrades the Helm server-side component on the cluster
 helm init --upgrade
 ```
 
-## Deployment
+## Releases and deployments
+
+[Helm](https://github.com/kubernetes/helm) manages everything for us.
+
+Kubernetes / Helm have a desired state of the infrastructure and they will do their best to move to that state.
+
+To update the desired state, run:
 
 ```
-./helm_upgrade.sh [optional helm upgrade arguments]..
+./helm_upgrade.sh
 ```
 
-Helm will detect changes in any subcharts and deploy appropriately.
+Bear in mind that when the command completes it doesn't necesarily mean deployment is complete (although it often does) - it only updates the desired state.
 
-For initial installation you should add `--install`
+#### Helm upgrade options
 
-On updates, depending on the changes you might need to add `--recreate-pods` or `--force`
+You can add arguments to `./helm_upgrade.sh` which are forwarded to the underlying `helm upgrade` command.
 
-For debugging you can also use `--debug` and `--dry-run`
+Check [the Helm documentation](https://docs.helm.sh/) for more details.
 
-You can use the `force_update.sh` script after your deployed to force update on a specific deployment and wait for rollout to complete
+Some useful arguments:
 
-## Configuring values / subcharts
+* For initial installation you should add `--install`
+* Depending on the changes you might need to add `--recreate-pods` or `--force`
+* For debugging you can also use `--debug` and `--dry-run`
+
+Additionally, you can to use `force_update.sh` to force an update on a specific deployment.
+
+#### Helm configuration values
 
 The default values are at `values.yaml` - these are used in the chart template files
 
-Each environment can override the default values using `values.production.yaml` which is merged with the `values.yaml` file
+Each environment adds or overrides with environment specific settings using `values.production.yaml` which is merged with the `values.yaml` file
 
 ## Secrets
 
-Secrets are stored and managed directly in kubernetes.
+Secrets are stored and managed directly in kubernetes and are not managed via Helm.
 
 To update an existing secret, delete it first `kubectl delete secret SECRET_NAME`
 
 After updating a secret you should update the affected deployments, you can use `./force_update.sh` to do that
 
-#### env-vars
+#### env-vars secret
 
 You can make up these values if you are creating a new environment, just keep them secure
 
@@ -116,7 +134,7 @@ kubectl create secret generic env-vars \
                       --from-literal=MINIO_SECRET_KEY=**********
 ```
 
-#### etc-bhs
+#### etc-bhs secret
 
 You should get the files from a team member
 
@@ -181,7 +199,7 @@ Copy `.travis.yml` and `continuous_deployment.sh` from this repo to the app repo
 
 Modify the deployment code in continuous_deployment.sh according to your app requirements
 
-Set the k8s ops service account secret on travis:
+Set the k8s ops service account secret on the app's travis:
 
 ```
 travis encrypt-file ../mojp-k8s/secret-mojp-k8s-ops.json secret-mojp-k8s-ops.json.enc
@@ -221,9 +239,15 @@ This allows the continuous deployment to update the image tag ASAP without waiti
 
 Kubernetes will make sure the deployment occurs only when the image is ready.
 
-## Load Balancer - static IP
+## Exposing services
 
-Traefik uses a load balancer service which by default has a temporary IP which changes on updates.
+Main entrypoint is a [traefik](https://traefik.io/) service, exposed via a load balancer.
+
+Traefik provides application load balancing with path/host-based rules. HTTPS is provided seamlessly using Let's encrypt.
+
+In addition to traefik, the nginx pod can optionally be used on specific service for more advanced use-cases such as auth or caching.
+
+#### Static IP for the load balancer
 
 Reserve a static IP:
 
@@ -236,4 +260,42 @@ Get the IP address and update the traefik values:
 ```
 IP=`gcloud compute addresses describe mojp-production-traefik --region=europe-west1 | grep ^address: | cut -d" " -f2 -`
 ./update_yaml.py '{"traefik":{"loadBalancerIP":"'$IP'"}}' "values.${K8S_ENVIRONMENT_NAME}.yaml"
+```
+
+#### Http authentication
+
+HTTP authentication is provided using nginx.
+
+You should configure a traefik backend that points to the nginx pod on a specific port number, then update `nginx-conf.yaml` to handle that port number with http auth enabled.
+
+To add a user to the htpasswd file:
+
+```
+htpasswd ./secret-nginx-htpasswd superadmin
+```
+
+(use `-c` if you are just creating the file)
+
+set the file as a secret on k8s:
+
+```
+kubectl create secret generic nginx-htpasswd --from-file=./secret-nginx-htpasswd
+```
+
+Update the values to enable:
+
+```
+./update_yaml.py '{"nginx":{"htpasswdSecretName":"nginx-htpasswd"}}' "values.${K8S_ENVIRONMENT_NAME}.yaml"
+```
+
+## Common Tasks
+
+#### Minio management
+
+```
+kubectl exec -it minio-954ddffbc-j9ddc sh
+apk --update add bash openssl curl && bash
+curl https://dl.minio.io/client/mc/release/linux-amd64/mc > /bin/mc && chmod +x /bin/mc
+mc config host add minio http://localhost:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
+mc --help
 ```
