@@ -34,4 +34,3 @@ if which dotenv >/dev/null && which helm >/dev/null && which kubectl >/dev/null 
 else
   echo "Failed to install dependencies, please try to install manually"
 fi
-
