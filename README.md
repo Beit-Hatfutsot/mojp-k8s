@@ -310,12 +310,12 @@ mc config host add minio http://localhost:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_K
 mc --help
 ```
 
-## Start the debug node pool
+## Start an additional node pool
 
 Some services run on a different node pool which can be deleted when not in use
 
 ```
-gcloud container node-pools create debug-pool --num-nodes=1
+gcloud container node-pools create <NODE_POOL_NAME> --num-nodes=1
 ```
 
 ## Elasticsearch & Kibana - for debugging

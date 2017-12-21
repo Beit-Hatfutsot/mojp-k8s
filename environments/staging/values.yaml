@@ -27,8 +27,8 @@ traefik:
   acmeEmail: ori@uumpa.com
   enableCjhProxy: true
   frontHostRule: "Host: staging-dbs.bh.org.il;"
-  # loadBalancerIP: 35.205.123.187
-  # nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
+  loadBalancerIP: 35.205.137.62
+  nodeHostName: gke-mojp-staging-pool-00ace2a7-2kz7
   rootHost: "staging-dbs.bh.org.il"
 
 kibana:
