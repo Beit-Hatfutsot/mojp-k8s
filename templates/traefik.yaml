@@ -41,10 +41,12 @@ spec:
         # we use shared host to simplify the configuration so we have to limit the pod to a specific host name
         {{ if .Values.traefik.nodeHostName }}
         kubernetes.io/hostname: {{ .Values.traefik.nodeHostName | quote }}
-        {{ end }}
-        # on first run, you can specify a node pool, then after the pod is scheduled, change to a hostname configuration
+        {{ else }}
         {{ if .Values.traefik.nodePool }}
         cloud.google.com/gke-nodepool: {{ .Values.traefik.nodePool | quote }}
+        {{ else }}
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+        {{ end }}
         {{ end }}
 ---
 apiVersion: v1

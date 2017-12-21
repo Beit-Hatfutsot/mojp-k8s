@@ -30,6 +30,14 @@ data:
       storage = "/traefic-acme/acme.json"
       entryPoint = "https"
 {{ .Values.traefik.acmeDomains | indent 6 }}
+      {{ if .Values.kibana.enabled }}
+      [[acme.domains]]
+        main = "kibana.{{ .Values.traefik.rootHost }}"
+      {{ end }}
+      {{ if .Values.elasticsearch.enabled }}
+      [[acme.domains]]
+        main = "elasticsearch.{{ .Values.traefik.rootHost }}"
+      {{ end }}
     {{ end }}
 
     [file]
@@ -74,6 +82,18 @@ data:
       [backends.minio]
         [backends.minio.servers.server1]
           url = "http://minio:9000"
+      {{ end }}
+
+      {{ if .Values.kibana.enabled }}
+      [backends.kibana]
+        [backends.kibana.servers.server1]
+          url = "http://nginx:8083"
+      {{ end }}
+
+      {{ if .Values.elasticsearch.enabled }}
+      [backends.elasticsearch]
+        [backends.elasticsearch.servers.server1]
+          url = "http://nginx:8084"
       {{ end }}
     
     [frontends]
@@ -120,6 +140,20 @@ data:
         backend="minio"
           [frontends.minio.routes.route1]
             rule = "PathPrefix: /minio"
+      {{ end }}
+
+      {{ if .Values.kibana.enabled }}
+      [frontends.kibana]
+        backend="kibana"
+          [frontends.kibana.routes.route1]
+            rule = "Host: kibana.{{ .Values.traefik.rootHost }}"
+      {{ end }}
+
+      {{ if .Values.elasticsearch.enabled }}
+      [frontends.elasticsearch]
+        backend="elasticsearch"
+          [frontends.elasticsearch.routes.route1]
+            rule = "Host: elasticsearch.{{ .Values.traefik.rootHost }}"
       {{ end }}
 
 {{ end }}

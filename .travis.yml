@@ -1,8 +1,32 @@
 language: bash
 sudo: required
 env:
-- K8S_CONTINUOUS_DEPLOYMENT=true
+  matrix:
+  - >
+    DEPLOY_ENVIRONMENT=production
+    DEPLOY_BRANCH=master
+    DEPLOY_REPO=Beit-Hatfutsot/mojp-k8s
+#  - >
+#    DEPLOY_ENVIRONMENT=staging
+#    DEPLOY_BRANCH=master
+#    DEPLOY_REPO=Beit-Hatfutsot/mojp-k8s
 services:
 - docker
 script:
-- ./continuous_deployment.sh
+- |
+  if [ "${DEPLOY_ENVIRONMENT}" != "" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ] &&\
+     [ "${TRAVIS_BRANCH}" == "${DEPLOY_BRANCH}" ] &&\
+     [ "${TRAVIS_COMMIT_MESSAGE}" != "" ] && ! echo "${TRAVIS_COMMIT_MESSAGE}" | grep -- --no-deploy && [ "${TRAVIS_COMMIT}" != "" ]
+  then
+      openssl aes-256-cbc -K $encrypted_f32f35ec6644_key -iv $encrypted_f32f35ec6644_iv \
+                          -in "environments/${DEPLOY_ENVIRONMENT}/k8s-ops-secret.json.enc" \
+                          -out secret-k8s-ops.json -d
+      ./run_docker_ops.sh "${DEPLOY_ENVIRONMENT}" "
+          cd /ops
+          ! ./helm_upgrade.sh \
+              && echo 'failed helm upgrade' && exit 1
+          exit 0
+      " \
+      "orihoch/sk8s-ops@sha256:6c368f75207229c8bb2ccb99bd6414dfb21289c5c988d2381a9da2015f55bd38" \
+      "${DEPLOY_REPO}" "${DEPLOY_BRANCH}"
+  fi

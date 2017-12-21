@@ -7,6 +7,7 @@ front:
 global:
   defaultNodePool: default-pool
   enableSitemap: true
+  debug: false
 
 minio:
   envVarsSecretName: env-vars
@@ -27,8 +28,22 @@ traefik:
       main = "test-dbs.bh.org.il"
     [[acme.domains]]
       main = "test-api.dbs.bh.org.il"
+    [[acme.domains]]
+      main = "api.dbs.bh.org.il"
+    [[acme.domains]]
+      main = "dbs.bh.org.il"
   acmeEmail: ori@uumpa.com
   enableCjhProxy: true
   frontHostRule: "Host: dbs.bh.org.il, test-dbs.bh.org.il;"
   loadBalancerIP: 35.205.123.187
   nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
+  rootHost: "dbs.bh.org.il"
+
+kibana:
+  enabled: false
+  elasticsearchUrl: http://elasticsearch:9200
+  nodePool: debug-pool
+
+elasticsearch:
+  enabled: false
+  nodePool: debug-pool
