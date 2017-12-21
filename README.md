@@ -300,9 +300,7 @@ nginx:
   htpasswdSecretName: nginx-htpasswd
 ```
 
-## Common Tasks
-
-#### Minio management
+## Minio management
 
 ```
 kubectl exec -it minio-954ddffbc-j9ddc sh
@@ -311,3 +309,17 @@ curl https://dl.minio.io/client/mc/release/linux-amd64/mc > /bin/mc && chmod +x 
 mc config host add minio http://localhost:9000 $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
 mc --help
 ```
+
+## Start the debug node pool
+
+Some services run on a different node pool which can be deleted when not in use
+
+```
+gcloud container node-pools create debug-pool --num-nodes=1
+```
+
+## Elasticsearch & Kibana - for debugging
+
+Both optional components, used for pipelines / debugging
+
+requires the debug node pool

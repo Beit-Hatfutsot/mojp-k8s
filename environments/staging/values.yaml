@@ -1,0 +1,41 @@
+back:
+  etcBhsSecretName: etc-bhs
+
+front:
+  etcBhsSecretName: etc-bhs
+
+global:
+  defaultNodePool: staging-pool
+  enableSitemap: false
+  debug: true
+
+minio:
+  enabled: false
+
+nginx:
+  htpasswdSecretName: nginx-htpasswd
+
+pipelines:
+  enabled: false
+
+traefik:
+  acmeDomains: |
+    [[acme.domains]]
+      main = "staging-dbs.bh.org.il"
+    [[acme.domains]]
+      main = "api.staging-dbs.bh.org.il"
+  acmeEmail: ori@uumpa.com
+  enableCjhProxy: true
+  frontHostRule: "Host: staging-dbs.bh.org.il;"
+  # loadBalancerIP: 35.205.123.187
+  # nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
+  rootHost: "staging-dbs.bh.org.il"
+
+kibana:
+  enabled: false
+  elasticsearchUrl: http://elasticsearch:9200
+  nodePool: staging-debug-pool
+
+elasticsearch:
+  enabled: false
+  nodePool: staging-debug-pool
