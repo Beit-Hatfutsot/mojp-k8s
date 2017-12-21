@@ -40,10 +40,10 @@ traefik:
   rootHost: "dbs.bh.org.il"
 
 kibana:
-  enabled: true
+  enabled: false
   elasticsearchUrl: http://elasticsearch:9200
   nodePool: debug-pool
 
 elasticsearch:
-  enabled: true
+  enabled: false
   nodePool: debug-pool

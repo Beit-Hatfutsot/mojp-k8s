@@ -2,10 +2,10 @@ language: bash
 sudo: required
 env:
   matrix:
-#  - >
-#    DEPLOY_ENVIRONMENT=production
-#    DEPLOY_BRANCH=master
-#    DEPLOY_REPO=Beit-Hatfutsot/mojp-k8s
+  - >
+    DEPLOY_ENVIRONMENT=production
+    DEPLOY_BRANCH=cd-refactor-add-kibana-elasticsearch
+    DEPLOY_REPO=Beit-Hatfutsot/mojp-k8s
   - >
     DEPLOY_ENVIRONMENT=staging
     DEPLOY_BRANCH=cd-refactor-add-kibana-elasticsearch
