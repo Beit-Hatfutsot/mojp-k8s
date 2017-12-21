@@ -15,6 +15,14 @@ spec:
   - name: "8082"
     port: 8082
   {{ end }}
+  {{ if .Values.kibana.enabled }}
+  - name: "8083"
+    port: 8083
+  {{ end }}
+  {{ if .Values.elasticsearch.enabled }}
+  - name: "8084"
+    port: 8084
+  {{ end }}
   selector:
     app: nginx
 ---
@@ -44,6 +52,12 @@ spec:
         {{ end }}
         {{ if .Values.global.enableSitemap }}
         - containerPort: 8082
+        {{ end }}
+        {{ if .Values.kibana.enabled }}
+        - containerPort: 8083
+        {{ end }}
+        {{ if .Values.elasticsearch.enabled }}
+        - containerPort: 8084
         {{ end }}
         resources:
           requests:

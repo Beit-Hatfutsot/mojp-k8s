@@ -1,3 +1,12 @@
 .env
 .git
-secret-*
+secret*
+.travis.yml
+app_server.yaml
+front-nginx-prerender.conf
+it-can-with-kubernetes.png
+LICENSE
+README.md
+*.enc
+continuous_deployment.sh
+environments

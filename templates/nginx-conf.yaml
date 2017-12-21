@@ -35,6 +35,28 @@ data:
     }
     {{ end }}
 
+    {{ if .Values.kibana.enabled }}
+    server {
+        listen 8083;
+        server_name  _;
+        location / {
+          proxy_pass http://kibana:5601;
+          include /etc/nginx/conf.d/restricted.inc;
+        }
+    }
+    {{ end }}
+
+    {{ if .Values.elasticsearch.enabled }}
+    server {
+        listen 8084;
+        server_name  _;
+        location / {
+          proxy_pass http://elasticsearch:9200;
+          include /etc/nginx/conf.d/restricted.inc;
+        }
+    }
+    {{ end }}
+
   healthcheck.inc: |
     location = / {
         return 200 'it works!';
