@@ -1,20 +1,82 @@
 {{ if .Values.enabled }}{{ if .Values.clearmashGetEntityIdsJob }}
 apiVersion: batch/v1
 kind: Job
+#apiVersion: batch/v1beta1
+#kind: CronJob
 metadata:
-  name: clearmash-get-entity-ids-{{ .Values.clearmashGetEntityIdsJob.suffix }}
+  name: {{ .Values.clearmashGetEntityIdsJob.name | quote }}
 spec:
+#  schedule: {{ .Values.clearmashGetEntityIdsJob.schedule | quote }}
+#  concurrencyPolicy: Forbid
+#  jobTemplate:
+#    spec:
   template:
     metadata:
-      name: clearmash-get-entity-ids-{{ .Values.clearmashGetEntityIdsJob.suffix }}
+      name: {{ .Values.clearmashGetEntityIdsJob.name | quote }}
     spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.clearmashGetEntityIdsJob.nodePool | quote }}
       containers:
       - name: pipelines
         image: {{ .Values.clearmashGetEntityIdsJob.image | quote }}
-        args: ["run", "./clearmash/web-content-folder-item-ids"]
-#        command: ["bash", "-c", "sleep 86400"]
+        command:
+        - bash
+        - "-c"
+        - |
+          rm -f /pipelines/data/done &&\
+          {{ .Values.clearmashGetEntityIdsJob.pipelinesScript }} &&\
+          touch /pipelines/data/done
+        volumeMounts:
+        - name: data
+          mountPath: /pipelines/data
+        {{ if .Values.clearmashGetEntityIdsJob.secretEnvFrom }}
         envFrom:
         - secretRef:
-            name: {{ .Values.clearmashGetEntityIdsJob.secret | quote }}
+            name: {{ .Values.clearmashGetEntityIdsJob.secretEnvFrom | quote }}
+        {{ end }}
+      - name: ops
+        image: {{ .Values.clearmashGetEntityIdsJob.opsImage | quote }}
+        resources:
+          requests:
+            cpu: "0.01"
+            memory: "150Mi"
+        command:
+        - bash
+        - "-c"
+        - |
+          source ~/.bashrc
+          ! gcloud config set project "${GCLOUD_PROJECT}" \
+              && echo "Failed initialization" && exit 1
+          ! gsutil ls -b gs://${GS_BUCKET_NAME}/ \
+              && ! gsutil mb gs://${GS_BUCKET_NAME}/ \
+                  && echo "Failed to create bucket or authenticate with gs" && exit 1
+          echo 'waiting for pipelines to complete'
+          while ! [ -e /pipelines/data/done ]; do
+            sleep 5
+            echo .
+          done
+          rm -f /pipelines/data/done
+          ! gsutil -m rsync {{ .Values.clearmashGetEntityIdsJob.gsutilSyncArgs }}  \
+                            -r /pipelines/data "gs://${GS_BUCKET_NAME}/`date +%Y-%m-%d-%H-%M`/" \
+              && echo "gsutil rsync failed" && exit 1
+          echo "Great Success"
+          exit 0
+        env:
+        - name: GS_BUCKET_NAME
+          value: {{ .Values.clearmashGetEntityIdsJob.GS_BUCKET_NAME | quote }}
+        - name: GCLOUD_PROJECT
+          value: {{ .Values.clearmashGetEntityIdsJob.GCLOUD_PROJECT }}
+        volumeMounts:
+        - name: data
+          mountPath: /pipelines/data
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+      volumes:
+      - name: k8s-ops
+        secret:
+          secretName: {{ .Values.clearmashGetEntityIdsJob.opsSecretName }}
+      - name: data
+        emptyDir: {}
       restartPolicy: Never
 {{ end }}{{ end }}

@@ -26,14 +26,13 @@ do
     if [ -f "${VALUES_FILE}" ]; then
         GLOBAL_VALUES=`./read_yaml.py "${VALUES_FILE}" global 2>/dev/null`
         ! [ -z "${GLOBAL_VALUES}" ] \
-            && ./update_yaml.py '{"global":'"${GLOBAL_VALUES}"'}' "${TEMPDIR}/values.yaml"
+            && ./update_yaml.py '{"global":'${GLOBAL_VALUES}'}' "${TEMPDIR}/values.yaml"
         RELEASE_VALUES=`./read_yaml.py "${VALUES_FILE}" "${CHART_NAME}" 2>/dev/null`
         ! [ -z "${RELEASE_VALUES}" ] \
-            && ./update_yaml.py `./read_yaml.py "${VALUES_FILE}" "${CHART_NAME}" 2>/dev/null` "${TEMPDIR}/values.yaml"
+            && ./update_yaml.py "${RELEASE_VALUES}" "${TEMPDIR}/values.yaml"
     fi
+#    cat "${TEMPDIR}/values.yaml"
 done
-
-cat "${TEMPDIR}/values.yaml"
 
 helm upgrade -f "${TEMPDIR}/values.yaml" "${RELEASE_NAME}" "${CHART_DIRECTORY}" "${@:2}"
 

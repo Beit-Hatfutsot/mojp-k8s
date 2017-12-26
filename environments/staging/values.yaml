@@ -43,6 +43,14 @@ elasticsearch:
 mojp-dbs-pipelines:
   enabled: true
   clearmashGetEntityIdsJob:
-    suffix: 2017-12-22-d
+    name: clearmash-get-entity-ids
+    nodePool: default-pool
     image: gcr.io/bh-org-01/mojp-dbs-pipelines:132db443cac078af5c6112b8fdebff44f9f5bd3f
-    secret: clearmash
+    pipelinesScript: dpp run ./clearmash/web-content-folder-item-ids
+    secretEnvFrom: clearmash
+    opsImage: orihoch/sk8sops@sha256:6a7bddfa3f523306f5b62391b95b1cd00407053aa5a53f98dc643b5e344228ed
+    GS_BUCKET_NAME: mojp-dbs-pipelines-clearmash-scheduled-job
+    GCLOUD_PROJECT: bh-org-01
+    opsSecretName: ops
+    # gsutilSyncArgs: "-a public-read"
+    # schedule: "@weekly"
