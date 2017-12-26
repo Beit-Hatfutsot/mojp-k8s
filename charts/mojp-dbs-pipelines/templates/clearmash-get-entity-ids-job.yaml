@@ -11,10 +11,10 @@ spec:
       containers:
       - name: pipelines
         image: {{ .Values.clearmashGetEntityIdsJob.image | quote }}
-        # args: ["run", "./clearmash/web-content-folder-item-ids"]
-        command: ["bash", "-c", "sleep 86400"]
+        args: ["run", "./clearmash/web-content-folder-item-ids"]
+#        command: ["bash", "-c", "sleep 86400"]
         envFrom:
         - secretRef:
-            name: clearmash
+            name: {{ .Values.clearmashGetEntityIdsJob.secret | quote }}
       restartPolicy: Never
 {{ end }}{{ end }}

@@ -43,5 +43,6 @@ elasticsearch:
 mojp-dbs-pipelines:
   enabled: true
   clearmashGetEntityIdsJob:
-    suffix: 2017-12-22-c
+    suffix: 2017-12-22-d
     image: gcr.io/bh-org-01/mojp-dbs-pipelines:132db443cac078af5c6112b8fdebff44f9f5bd3f
+    secret: clearmash
