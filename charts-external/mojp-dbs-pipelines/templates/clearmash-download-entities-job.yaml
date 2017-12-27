@@ -1,0 +1,93 @@
+{{ if .Values.enabled }}{{ if .Values.clearmashDownloadEntitiesJob }}
+apiVersion: batch/v1
+kind: Job
+#apiVersion: batch/v1beta1
+#kind: CronJob
+metadata:
+  name: {{ .Values.clearmashDownloadEntitiesJob.name | quote }}
+spec:
+#  schedule: {{ .Values.clearmashDownloadEntitiesJob.schedule | quote }}
+#  concurrencyPolicy: Forbid
+#  jobTemplate:
+#    spec:
+  template:
+    metadata:
+      name: {{ .Values.clearmashDownloadEntitiesJob.name | quote }}
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.clearmashDownloadEntitiesJob.nodePool | quote }}
+      containers:
+      - name: pipelines
+        image: {{ .Values.clearmashDownloadEntitiesJob.image | quote }}
+        command:
+        - bash
+        - "-c"
+        - |
+          echo "waiting for sync"
+          while ! [ -e /pipelines/data/synced ]; do
+            sleep 5
+            echo .
+          done
+          rm -f /pipelines/data/synced &&\
+          {{ .Values.clearmashDownloadEntitiesJob.pipelinesScript }} &&\
+          touch /pipelines/data/done
+        volumeMounts:
+        - name: data
+          mountPath: /pipelines/data
+        {{ if .Values.clearmashDownloadEntitiesJob.secretEnvFrom }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.clearmashDownloadEntitiesJob.secretEnvFrom | quote }}
+        {{ end }}
+      - name: ops
+        image: {{ .Values.clearmashDownloadEntitiesJob.opsImage | quote }}
+        resources:
+          requests:
+            cpu: "0.01"
+            memory: "150Mi"
+        command:
+        - bash
+        - "-c"
+        - |
+          source ~/.bashrc
+          echo "initializing..."
+          ! gcloud config set project "${GCLOUD_PROJECT}" \
+              && echo "Failed initialization" && exit 1
+          ! gsutil ls -b gs://${GS_BUCKET_NAME}/ \
+              && ! gsutil mb gs://${GS_BUCKET_NAME}/ \
+                  && echo "Failed to create bucket or authenticate with gs" && exit 1
+          {{ if .Values.clearmashDownloadEntitiesJob.syncScript }}
+          echo "syncing..."
+          {{ .Values.clearmashDownloadEntitiesJob.syncScript }}
+          {{ end }}
+          touch /pipelines/data/synced
+          echo 'synced, waiting for pipelines to complete'
+          while ! [ -e /pipelines/data/done ]; do
+            sleep 5
+            echo .
+          done
+          rm -f /pipelines/data/done
+          ! gsutil -m rsync {{ .Values.clearmashDownloadEntitiesJob.gsutilSyncArgs }}  \
+                            -r /pipelines/data "gs://${GS_BUCKET_NAME}/`date +%Y-%m-%d-%H-%M`/" \
+              && echo "gsutil rsync failed" && exit 1
+          echo "Great Success"
+          exit 0
+        env:
+        - name: GS_BUCKET_NAME
+          value: {{ .Values.clearmashDownloadEntitiesJob.GS_BUCKET_NAME | quote }}
+        - name: GCLOUD_PROJECT
+          value: {{ .Values.clearmashDownloadEntitiesJob.GCLOUD_PROJECT }}
+        volumeMounts:
+        - name: data
+          mountPath: /pipelines/data
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+      volumes:
+      - name: k8s-ops
+        secret:
+          secretName: {{ .Values.clearmashDownloadEntitiesJob.opsSecretName }}
+      - name: data
+        emptyDir: {}
+      restartPolicy: Never
+{{ end }}{{ end }}
