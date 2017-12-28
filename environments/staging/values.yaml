@@ -50,7 +50,7 @@ mojp-dbs-pipelines:
     name: clearmash-get-entity-ids
     # schedule: "@daily"
     nodePool: default-pool
-    image: gcr.io/bh-org-01/mojp-dbs-pipelines:440a720ffd2f24494ca7753797bdd0d9c48b15d7
+    image: gcr.io/bh-org-01/mojp-dbs-pipelines:35ec0999d4cbafe444d01f8c8b799706d7883ead
     pipelinesScript: dpp run ./clearmash/web-content-folder-item-ids
     secretEnvFrom: clearmash
     GS_BUCKET_NAME: mojp-dbs-pipelines-data
