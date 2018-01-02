@@ -1,11 +1,16 @@
 back:
+  enabled: false
   etcBhsSecretName: etc-bhs
 
 front:
+  enabled: false
   etcBhsSecretName: etc-bhs
 
+redis:
+  enabled: false
+
 global:
-  defaultNodePool: staging-pool
+  defaultNodePool: default-pool
   enableSitemap: false
   debug: true
   environmentName: staging
@@ -28,21 +33,17 @@ traefik:
     [[acme.domains]]
       main = "api.staging-dbs.bh.org.il"
   acmeEmail: ori@uumpa.com
-  enableCjhProxy: true
-  frontHostRule: "Host: staging-dbs.bh.org.il;"
+#  enableCjhProxy: true
+#  frontHostRule: "Host: staging-dbs.bh.org.il;"
   loadBalancerIP: 35.205.137.62
-  nodeHostName: gke-mojp-staging-pool-00ace2a7-2kz7
+  nodeHostName: gke-mojp-default-pool-33bac5d8-pp2t
   rootHost: "staging-dbs.bh.org.il"
 
 kibana:
-  enabled: false
-  elasticsearchUrl: http://elasticsearch:9200
-  nodePool: staging-debug-pool
+  enabled: true
 
 elasticsearch:
-  enabled: false
-  nodePool: staging-debug-pool
-
+  enabled: true
 
 mojp-dbs-pipelines:
   enabled: true
@@ -57,20 +58,6 @@ mojp-dbs-pipelines:
     OUTPUT_PATH_PREFIX: clearmash-get-entity-ids-job-
     # INITIAL_SYNC_SCRIPT: gsutil -m rsync -r gs://sk8s-pipelines-data/noise-2017-12-06/ /pipelines/data/
     opsSecretName: ops
-
-
-    # gsutilSyncArgs: "-a public-read"
-    # schedule: "@weekly"
-#  clearmashDownloadEntitiesJob:
-#    name: clearmash-download-entities
-#    nodePool: default-pool
-#    image: gcr.io/bh-org-01/mojp-dbs-pipelines:96ce218ec8edbf85801581de1a1596595d4bd057
-#    syncScript: gsutil -m rsync -r gs://mojp-dbs-pipelines-clearmash-scheduled-job/2017-12-26-18-11/ /pipelines/data/
-#    pipelinesScript: dpp run ./clearmash/download-entities
-#    secretEnvFrom: clearmash
-#    opsImage: orihoch/sk8sops@sha256:6a7bddfa3f523306f5b62391b95b1cd00407053aa5a53f98dc643b5e344228ed
-#    GS_BUCKET_NAME: mojp-dbs-pipelines-clearmash-scheduled-job
-#    GCLOUD_PROJECT: bh-org-01
-#    opsSecretName: ops
-#    # gsutilSyncArgs: "-a public-read"
-#    # schedule: "@weekly"
+  clearmashSplitEntitiesFoldersJob: true
+  clearmashDownloadEntitiesJob: true
+  clearmashDumpToElasticsearchJob: true

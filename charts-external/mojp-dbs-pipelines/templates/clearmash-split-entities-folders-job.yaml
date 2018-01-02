@@ -1,10 +1,10 @@
-{{ if .Values.enabled }}{{ if .Values.clearmashDownloadEntitiesJob }}
+{{ if .Values.enabled }}{{ if .Values.clearmashSplitEntitiesFoldersJob }}
 apiVersion: batch/v1
 kind: Job
 #apiVersion: batch/v1beta1
 #kind: CronJob
 metadata:
-  name: clearmash-download-entities
+  name: clearmash-split-entities-folders
 spec:
 #  schedule: "@daily"
 #  concurrencyPolicy: Forbid
@@ -12,23 +12,21 @@ spec:
 #    spec:
   template:
     metadata:
-      name: clearmash-download-entities
+      name: clearmash-split-entities-folders
     spec:
       containers:
       - name: pipelines
-        image: gcr.io/bh-org-01/mojp-dbs-pipelines:3670ab4098b65cc1642b35b8d8dee79f4f5bb3d5
+        image: gcr.io/bh-org-01/mojp-dbs-pipelines:94f69b507a682400c1000509d6838d22973e5231
         command:
         - bash
         - "-c"
         - |
           while ! [ -e /pipelines/data/synced ]; do sleep 5 && echo .; done && rm -f /pipelines/data/synced &&\
-          dpp run ./clearmash/download-entities &&\
-          rm -rf data/clearmash/entity-ids &&\
+          dpp run ./clearmash/folders &&\
+          dpp run ./clearmash/entity-ids &&\
+          rm -rf data/clearmash/web-content-folder-entity-ids &&\
           touch /pipelines/data/done
         volumeMounts: [{"name": "data", "mountPath": "/pipelines/data"}]
-        envFrom:
-        - secretRef:
-            name: clearmash
       - name: ops
         image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
         resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
@@ -37,10 +35,10 @@ spec:
           value: bh-org-01
         - name: GS_BUCKET_NAME
           value: mojp-dbs-pipelines-data
+        - name: DISABLE_TIMESTAMP
+          value: "1"
         - name: INITIAL_SYNC_SCRIPT
-          value: >
-                 mkdir -p /pipelines/data/clearmash/entity-ids &&
-                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-02-10-30/clearmash/entity-ids/ /pipelines/data/clearmash/entity-ids/
+          value: gsutil -m rsync -r gs://mojp-dbs-pipelines-data/clearmash-get-entity-ids-job-2017-12-29-05-00 /pipelines/data/
         volumeMounts:
         - name: data
           mountPath: /pipelines/data
