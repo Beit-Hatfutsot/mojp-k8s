@@ -19,12 +19,18 @@ global:
 
 minio:
   enabled: false
+#  envVarsSecretName: env-vars
+#  persistentDiskName: dbs-production-minio-data
 
 nginx:
   htpasswdSecretName: nginx-htpasswd
 
 pipelines:
   enabled: false
+#  envVarsSecretName: env-vars
+#  image: orihoch/mojp-dbs-back-pipelines:sitemap-aws-principal-patch
+#  sitemapEsHost: bhs-prod-db
+#  sitemapEsIndex: mojp-prod
 
 traefik:
   acmeDomains: |

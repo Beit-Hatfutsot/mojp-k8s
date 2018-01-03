@@ -1,15 +1,24 @@
 back:
+  enabled: true
   etcBhsSecretName: etc-bhs
 
 front:
+  enabled: true
   etcBhsSecretName: etc-bhs
+
+redis:
+  enabled: true
 
 global:
   defaultNodePool: default-pool
   enableSitemap: true
   debug: false
+  environmentName: production
+  opsRepoSlug: Beit-Hatfutsot/mojp-k8s
+  opsRepoBranch: master
 
 minio:
+  enabled: true
   envVarsSecretName: env-vars
   persistentDiskName: dbs-production-minio-data
 
@@ -17,6 +26,7 @@ nginx:
   htpasswdSecretName: nginx-htpasswd
 
 pipelines:
+  enabled: true
   envVarsSecretName: env-vars
   image: orihoch/mojp-dbs-back-pipelines:sitemap-aws-principal-patch
   sitemapEsHost: bhs-prod-db
@@ -38,12 +48,39 @@ traefik:
   loadBalancerIP: 35.205.123.187
   nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
   rootHost: "dbs.bh.org.il"
+  backupJob: true
 
 kibana:
   enabled: false
-  elasticsearchUrl: http://elasticsearch:9200
-  nodePool: debug-pool
+#  nodePool: turbo-pool
 
 elasticsearch:
   enabled: false
-  nodePool: debug-pool
+#  nodePool: turbo-pool
+
+mojp-dbs-pipelines:
+  enabled: false
+#  clearmashGetEntityIdsJob:
+#    name: clearmash-get-entity-ids
+#    # schedule: "@daily"
+#    nodePool: default-pool
+#    image: gcr.io/bh-org-01/mojp-dbs-pipelines:35ec0999d4cbafe444d01f8c8b799706d7883ead
+#    pipelinesScript: dpp run ./clearmash/web-content-folder-item-ids
+#    secretEnvFrom: clearmash
+#    GS_BUCKET_NAME: mojp-dbs-pipelines-data
+#    OUTPUT_PATH_PREFIX: clearmash-get-entity-ids-job-
+#    # INITIAL_SYNC_SCRIPT: gsutil -m rsync -r gs://sk8s-pipelines-data/noise-2017-12-06/ /pipelines/data/
+#    opsSecretName: ops
+#  clearmashSplitEntitiesFoldersJob: true
+#  clearmashDownloadEntitiesJob: true
+#  clearmashPrepForElasticsearch: true
+#  clearmashDumpToElasticsearchJob:
+#    nodePool: turbo-pool
+
+mojp-dbs-searchapi:
+  enabled: false
+#  nodePool: turbo-pool
+
+mojp-dbs-searchapp:
+  enabled: false
+#  nodePool: turbo-pool
