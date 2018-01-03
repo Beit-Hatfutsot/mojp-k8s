@@ -14,21 +14,22 @@ spec:
     metadata:
       name: clearmash-dump-to-elasticsearch
     spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.clearmashDumpToElasticsearchJob.nodePool | quote }}
       containers:
       - name: pipelines
-        image: gcr.io/bh-org-01/mojp-dbs-pipelines:b62285d10954ed7902cf6f8d9d10b16022e61cd1
+        image: gcr.io/bh-org-01/mojp-dbs-pipelines:53ce94bf7275e26a259c80da84e335995546d41f
         command:
         - bash
         - "-c"
         - |
           while ! [ -e /pipelines/data/synced ]; do sleep 5 && echo .; done && rm -f /pipelines/data/synced &&\
-          dpp run ./clearmash/places &&\
-          dpp run ./clearmash/familynames &&\
-          dpp run ./clearmash/movies &&\
-          dpp run ./clearmash/personalities &&\
-          dpp run ./clearmash/photounits &&\
           dpp run ./clearmash/dump_entities_to_elasticsearch &&\
-          rm -rf data/clearmash/download-entities &&\
+          rm -rf data/clearmash/places &&\
+          rm -rf data/clearmash/familynames &&\
+          rm -rf data/clearmash/movies &&\
+          rm -rf data/clearmash/personalities &&\
+          rm -rf data/clearmash/photounits &&\
           touch /pipelines/data/done
         volumeMounts: [{"name": "data", "mountPath": "/pipelines/data"}]
         env:
@@ -44,8 +45,16 @@ spec:
           value: mojp-dbs-pipelines-data
         - name: INITIAL_SYNC_SCRIPT
           value: >
-                 mkdir -p /pipelines/data/clearmash/download-entities &&
-                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-02-12-29/clearmash/download-entities/ /pipelines/data/clearmash/download-entities/
+                 mkdir -p /pipelines/data/clearmash/places &&
+                 mkdir -p /pipelines/data/clearmash/familynames &&
+                 mkdir -p /pipelines/data/clearmash/movies &&
+                 mkdir -p /pipelines/data/clearmash/personalities &&
+                 mkdir -p /pipelines/data/clearmash/photounits &&
+                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/places/ /pipelines/data/clearmash/places/ &&
+                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/familynames/ /pipelines/data/clearmash/familynames/ &&
+                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/movies/ /pipelines/data/clearmash/movies/ &&
+                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/personalities/ /pipelines/data/clearmash/personalities/ &&
+                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/photounits/ /pipelines/data/clearmash/photounits/
         volumeMounts:
         - name: data
           mountPath: /pipelines/data

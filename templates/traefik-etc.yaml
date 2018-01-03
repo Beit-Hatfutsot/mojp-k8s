@@ -95,6 +95,12 @@ data:
         [backends.elasticsearch.servers.server1]
           url = "http://nginx:8084"
       {{ end }}
+
+      {{ if index .Values "mojp-dbs-searchapi" "enabled" }}
+      [backends.mojpdbssearchapi]
+        [backends.mojpdbssearchapi.servers.server1]
+          url = "http://mojp-dbs-searchapi:8000"
+      {{ end }}
     
     [frontends]
       {{ if .Values.front.enabled }}
@@ -154,6 +160,13 @@ data:
         backend="elasticsearch"
           [frontends.elasticsearch.routes.route1]
             rule = "Host: elasticsearch.{{ .Values.traefik.rootHost }}"
+      {{ end }}
+
+      {{ if index .Values "mojp-dbs-searchapi" "enabled" }}
+      [frontends.mojpdbssearchapi]
+        backend="mojpdbssearchapi"
+          [frontends.mojpdbssearchapi.routes.route1]
+            rule = "Host: {{ .Values.traefik.rootHost }}; PathPrefixStrip: /searchapi"
       {{ end }}
 
 {{ end }}

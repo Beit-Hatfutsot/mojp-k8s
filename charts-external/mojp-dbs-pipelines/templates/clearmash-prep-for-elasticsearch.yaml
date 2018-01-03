@@ -1,0 +1,60 @@
+{{ if .Values.enabled }}{{ if .Values.clearmashPrepForElasticsearch }}
+apiVersion: batch/v1
+kind: Job
+#apiVersion: batch/v1beta1
+#kind: CronJob
+metadata:
+  name: clearmash-prep-for-elasticsearch
+spec:
+#  schedule: "@daily"
+#  concurrencyPolicy: Forbid
+#  jobTemplate:
+#    spec:
+  template:
+    metadata:
+      name: clearmash-prep-for-elasticsearch
+    spec:
+      containers:
+      - name: pipelines
+        image: gcr.io/bh-org-01/mojp-dbs-pipelines:b62285d10954ed7902cf6f8d9d10b16022e61cd1
+        command:
+        - bash
+        - "-c"
+        - |
+          while ! [ -e /pipelines/data/synced ]; do sleep 5 && echo .; done && rm -f /pipelines/data/synced &&\
+          dpp run ./clearmash/places &&\
+          dpp run ./clearmash/familynames &&\
+          dpp run ./clearmash/movies &&\
+          dpp run ./clearmash/personalities &&\
+          dpp run ./clearmash/photounits &&\
+          rm -rf data/clearmash/download-entities &&\
+          touch /pipelines/data/done
+        volumeMounts: [{"name": "data", "mountPath": "/pipelines/data"}]
+      - name: ops
+        image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
+        resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
+        env:
+        - name: CLOUDSDK_CORE_PROJECT
+          value: bh-org-01
+        - name: GS_BUCKET_NAME
+          value: mojp-dbs-pipelines-data
+        - name: INITIAL_SYNC_SCRIPT
+          value: >
+                 mkdir -p /pipelines/data/clearmash/download-entities &&
+                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-02-12-29/clearmash/download-entities/ /pipelines/data/clearmash/download-entities/
+        volumeMounts:
+        - name: data
+          mountPath: /pipelines/data
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+      volumes:
+      # this is the k8s ops secret, see https://github.com/OriHoch/sk8s-ops/blob/master/README.md#secrets
+      - name: k8s-ops
+        secret:
+          secretName: ops
+      # empty dir is stored on host and shared between all container in pod, we use it to sync data between the pods
+      - name: data
+        emptyDir: {}
+      restartPolicy: Never
+{{ end }}{{ end }}

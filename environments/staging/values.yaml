@@ -41,9 +41,11 @@ traefik:
 
 kibana:
   enabled: true
+  nodePool: turbo-pool
 
 elasticsearch:
   enabled: true
+  nodePool: turbo-pool
 
 mojp-dbs-pipelines:
   enabled: true
@@ -60,4 +62,10 @@ mojp-dbs-pipelines:
     opsSecretName: ops
   clearmashSplitEntitiesFoldersJob: true
   clearmashDownloadEntitiesJob: true
-  clearmashDumpToElasticsearchJob: true
+  clearmashPrepForElasticsearch: true
+  clearmashDumpToElasticsearchJob:
+    nodePool: turbo-pool
+
+mojp-dbs-searchapi:
+  enabled: true
+  nodePool: turbo-pool

@@ -22,7 +22,7 @@ spec:
         app: kibana
     spec:
       nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+        cloud.google.com/gke-nodepool: {{ .Values.kibana.nodePool | quote }}
       containers:
       - image: kibana:5.3
         name: kibana

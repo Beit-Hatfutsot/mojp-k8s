@@ -23,7 +23,7 @@ spec:
         app: elasticsearch
     spec:
       nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+        cloud.google.com/gke-nodepool: {{ .Values.elasticsearch.nodePool | quote }}
       containers:
       - name: sysctl-conf
         image: busybox:1.26.2
@@ -39,6 +39,9 @@ spec:
           privileged: true
       - image: budgetkey/open-budget-elasticsearch
         name: elasticsearch
+        env:
+        - name: ES_JAVA_OPTS
+          value: "-Xms1g -Xmx1g"
         ports:
         - containerPort: 9200
 {{ end }}

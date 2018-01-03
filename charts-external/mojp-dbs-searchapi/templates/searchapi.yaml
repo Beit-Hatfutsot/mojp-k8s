@@ -1,0 +1,82 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mojp-dbs-searchapi
+spec:
+  ports:
+  - name: '8000'
+    port: 8000
+  selector:
+    app: mojp-dbs-searchapi
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mojp-dbs-searchapi
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mojp-dbs-searchapi
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodePool | quote }}
+      containers:
+      - name: ops
+        image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
+        resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
+        command:
+        - bash
+        - "-c"
+        - >
+          source ~/.bashrc;
+          gcloud config set project "bh-org-01" &&
+          mkdir -p /pipelines/data/clearmash/places &&
+          mkdir -p /pipelines/data/clearmash/familynames &&
+          mkdir -p /pipelines/data/clearmash/movies &&
+          mkdir -p /pipelines/data/clearmash/personalities &&
+          mkdir -p /pipelines/data/clearmash/photounits &&
+          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/places/ /pipelines/data/clearmash/places/ &&
+          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/familynames/ /pipelines/data/clearmash/familynames/ &&
+          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/movies/ /pipelines/data/clearmash/movies/ &&
+          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/personalities/ /pipelines/data/clearmash/personalities/ &&
+          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/photounits/ /pipelines/data/clearmash/photounits/ &&
+          ls -lah /pipelines/data/clearmash/{places,familynames,movies,personalities,photounits} &&
+          touch /pipelines/data/synced &&
+          while true; do sleep 86400; done
+        volumeMounts:
+        - name: data
+          mountPath: /pipelines/data
+        - name: k8s-ops
+          mountPath: /k8s-ops
+          readOnly: true
+      - name: app
+        image: orihoch/mojp-dbs-search-api@sha256:4a1ef21395a3554370e9054fd6ef59fbc33a79bb5b1aad44def5523d6838bf5a
+        command:
+        - sh
+        - "-c"
+        - >
+          while ! [ -e /opt/mojp-dbs-pipelines/data/synced ]; do sleep 5 && echo .; done &&
+          /opt/app/startup.sh
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 20m
+        env:
+        - name: ES_HOST
+          value: elasticsearch
+        volumeMounts:
+        - name: data
+          mountPath: /opt/mojp-dbs-pipelines/data
+      volumes:
+      # this is the k8s ops secret, see https://github.com/OriHoch/sk8s-ops/blob/master/README.md#secrets
+      - name: k8s-ops
+        secret:
+          secretName: ops
+      # empty dir is stored on host and shared between all container in pod, we use it to sync data between the pods
+      - name: data
+        emptyDir: {}
+{{ end }}

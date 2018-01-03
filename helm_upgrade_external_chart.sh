@@ -35,6 +35,20 @@ do
 #    cat "${TEMPDIR}/values.yaml"
 done
 
-helm upgrade -f "${TEMPDIR}/values.yaml" "${RELEASE_NAME}" "${CHART_DIRECTORY}" "${@:2}"
-
-rm -rf $TEMPDIR
+VALUES=`cat "${TEMPDIR}/values.yaml"`
+CMD="helm upgrade -f ${TEMPDIR}/values.yaml ${RELEASE_NAME} ${CHART_DIRECTORY} ${@:2}"
+if ! helm upgrade -f "${TEMPDIR}/values.yaml" "${RELEASE_NAME}" "${CHART_DIRECTORY}" "${@:2}"; then
+    echo
+    echo "${TEMPDIR}/values.yaml"
+    echo "${VALUES}"
+    echo
+    echo "CMD"
+    echo "${CMD}"
+    echo
+    echo "helm upgrade failed"
+    exit 1
+else
+    rm -rf $TEMPDIR
+    echo "Great Success!"
+    exit 0
+fi
