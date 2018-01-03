@@ -14,6 +14,39 @@ spec:
         # update the pod on traefik configuration changes
         checksum/config: {{ include (print $.Template.BasePath "/traefik-etc.yaml") . | sha256sum }}
     spec:
+      nodeSelector:
+        # we use shared host to simplify the configuration so we have to limit the pod to a specific host name
+        {{ if .Values.traefik.nodeHostName }}
+        kubernetes.io/hostname: {{ .Values.traefik.nodeHostName | quote }}
+        {{ else }}
+        {{ if .Values.traefik.nodePool }}
+        cloud.google.com/gke-nodepool: {{ .Values.traefik.nodePool | quote }}
+        {{ else }}
+        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
+        {{ end }}
+        {{ end }}
+#      initContainers:
+#      - name: ops
+#        image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
+#        resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
+#        command:
+#        - bash
+#        - "-c"
+#        - |
+#          if ! [ -e /traefik-acme/acme.json ]; then
+#            source ~/.bashrc;
+#            gcloud config set project "bh-org-01"
+#            URL=`gsutil cat gs://mojp-k8s-backups/{{ .Values.global.environmentName }}/traefik-acme/latest`
+#            gsutil -m rsync -r ${URL} /traefik-acme
+#          fi
+#          chmod -R 600 /traefik-acme
+#          exit 0
+#        volumeMounts:
+#        - name: k8s-ops
+#          mountPath: /k8s-ops
+#          readOnly: true
+#        - name: traefik-acme
+#          mountPath: /traefik-acme
       containers:
       - name: traefik
         image: traefik
@@ -26,7 +59,7 @@ spec:
         - name: etc-traefik
           mountPath: /etc-traefik
         - name: traefik-acme
-          mountPath: /traefic-acme
+          mountPath: /traefik-acme
         args:
         - "--configFile=/etc-traefik/traefik.toml"
       volumes:
@@ -36,18 +69,10 @@ spec:
       - name: traefik-acme
         hostPath:
           type: DirectoryOrCreate
-          path: /var/traefik-acme
-      nodeSelector:
-        # we use shared host to simplify the configuration so we have to limit the pod to a specific host name
-        {{ if .Values.traefik.nodeHostName }}
-        kubernetes.io/hostname: {{ .Values.traefik.nodeHostName | quote }}
-        {{ else }}
-        {{ if .Values.traefik.nodePool }}
-        cloud.google.com/gke-nodepool: {{ .Values.traefik.nodePool | quote }}
-        {{ else }}
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
-        {{ end }}
-        {{ end }}
+          path: /var/traefik-acme-{{ .Values.global.environmentName }}
+      - name: k8s-ops
+        secret:
+          secretName: ops
 ---
 apiVersion: v1
 kind: Service

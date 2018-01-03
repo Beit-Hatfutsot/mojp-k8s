@@ -27,7 +27,7 @@ data:
     # let's encrypt automatic ssl certificate issue and renewal
     [acme]
       email = {{ .Values.traefik.acmeEmail | quote }}
-      storage = "/traefic-acme/acme.json"
+      storage = "/traefik-acme/acme.json"
       entryPoint = "https"
 {{ .Values.traefik.acmeDomains | indent 6 }}
       {{ if .Values.kibana.enabled }}
@@ -101,6 +101,12 @@ data:
         [backends.mojpdbssearchapi.servers.server1]
           url = "http://mojp-dbs-searchapi:8000"
       {{ end }}
+
+      {{ if index .Values "mojp-dbs-searchapp" "enabled" }}
+      [backends.mojpdbssearchapp]
+        [backends.mojpdbssearchapp.servers.server1]
+          url = "http://mojp-dbs-searchapp:8000"
+      {{ end }}
     
     [frontends]
       {{ if .Values.front.enabled }}
@@ -167,6 +173,13 @@ data:
         backend="mojpdbssearchapi"
           [frontends.mojpdbssearchapi.routes.route1]
             rule = "Host: {{ .Values.traefik.rootHost }}; PathPrefixStrip: /searchapi"
+      {{ end }}
+
+      {{ if index .Values "mojp-dbs-searchapp" "enabled" }}
+      [frontends.mojpdbssearchapp]
+        backend="mojpdbssearchapp"
+          [frontends.mojpdbssearchapp.routes.route1]
+            rule = "Host: {{ .Values.traefik.rootHost }}; PathPrefix: /searchapp"
       {{ end }}
 
 {{ end }}

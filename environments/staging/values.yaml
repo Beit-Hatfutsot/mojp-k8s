@@ -12,7 +12,7 @@ redis:
 global:
   defaultNodePool: default-pool
   enableSitemap: false
-  debug: true
+  debug: false
   environmentName: staging
   opsRepoSlug: Beit-Hatfutsot/mojp-k8s
   opsRepoBranch: master
@@ -38,6 +38,7 @@ traefik:
   loadBalancerIP: 35.205.137.62
   nodeHostName: gke-mojp-default-pool-33bac5d8-pp2t
   rootHost: "staging-dbs.bh.org.il"
+  backupJob: true
 
 kibana:
   enabled: true
@@ -67,5 +68,9 @@ mojp-dbs-pipelines:
     nodePool: turbo-pool
 
 mojp-dbs-searchapi:
+  enabled: true
+  nodePool: turbo-pool
+
+mojp-dbs-searchapp:
   enabled: true
   nodePool: turbo-pool

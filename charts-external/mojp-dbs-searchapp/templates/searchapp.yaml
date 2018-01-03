@@ -1,0 +1,37 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: mojp-dbs-searchapp
+spec:
+  ports:
+  - name: '8000'
+    port: 8000
+  selector:
+    app: mojp-dbs-searchapp
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mojp-dbs-searchapp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mojp-dbs-searchapp
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.nodePool | quote }}
+      containers:
+      - name: app
+        image: orihoch/mojpdbs-app-search@sha256:9a755047849d0ad9a7446b953e2a1bfc1c2d9c4350470dac6013c16d474c79a9
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 20m
+        env:
+        - name: BASE_PATH
+          value: /searchapp/
+{{ end }}
