@@ -34,15 +34,15 @@ pipelines:
 traefik:
   acmeDomains: |
     [[acme.domains]]
-      main = "staging-dbs.bh.org.il"
+      main = "staging-dbs-bh.uumpa.net"
     [[acme.domains]]
-      main = "api.staging-dbs.bh.org.il"
+      main = "api.staging-dbs-bh.uumpa.net"
   acmeEmail: ori@uumpa.com
 #  enableCjhProxy: true
 #  frontHostRule: "Host: staging-dbs.bh.org.il;"
-#  loadBalancerIP: 35.205.137.62
-#  nodeHostName: gke-mojp-default-pool-33bac5d8-pp2t
-  rootHost: "staging-dbs.bh.org.il"
+  loadBalancerIP: 35.188.195.70
+  nodeHostName: gke-mojp2-default-pool-2a2857ee-0sn6
+  rootHost: "staging-dbs-bh.uumpa.net"
 #  backupJob: true
 
 kibana:

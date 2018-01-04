@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: orihoch/mojpdbs-app-search@sha256:9a755047849d0ad9a7446b953e2a1bfc1c2d9c4350470dac6013c16d474c79a9
+        image: orihoch/mojpdbs-app-search:uumpa@sha256:bb58ed40e2d4e70407b1573e80260b1c91aff2b7f50f14d7f3ca5d4183c67999
         ports:
         - containerPort: 8000
         resources:
