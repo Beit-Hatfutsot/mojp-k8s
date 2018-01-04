@@ -84,3 +84,7 @@ mojp-dbs-searchapi:
 mojp-dbs-searchapp:
   enabled: false
 #  nodePool: turbo-pool
+
+mojp-dbs-elasticsearch:
+  enabled: false
+#  nodePool: turbo-pool

@@ -102,3 +102,4 @@ app_server.yaml
 front-nginx-prerender.conf
 secret*
 .idea
+get_helm.sh
