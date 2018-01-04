@@ -14,17 +14,13 @@ spec:
         metadata:
           name: traefik-backup
         spec:
+          {{ if .Values.traefik.nodeHostName }}
           nodeSelector:
-            # we use shared host to simplify the configuration so we have to limit the pod to a specific host name
-            {{ if .Values.traefik.nodeHostName }}
             kubernetes.io/hostname: {{ .Values.traefik.nodeHostName | quote }}
-            {{ else }}
-            {{ if .Values.traefik.nodePool }}
+          {{ end }}{{ if .Values.traefik.nodePool }}
+          nodeSelector:
             cloud.google.com/gke-nodepool: {{ .Values.traefik.nodePool | quote }}
-            {{ else }}
-            cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
-            {{ end }}
-            {{ end }}
+          {{ end }}
           containers:
           - name: ops
             image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0

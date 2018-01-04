@@ -21,11 +21,12 @@ spec:
       labels:
         app: kibana
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.kibana.nodePool | quote }}
       containers:
       - image: kibana:5.3
         name: kibana
         ports:
         - containerPort: 5601
+        env:
+        - name: ELASTICSEARCH_URL
+          value: {{ .Values.elasticsearchUrl | quote }}
 {{ end }}

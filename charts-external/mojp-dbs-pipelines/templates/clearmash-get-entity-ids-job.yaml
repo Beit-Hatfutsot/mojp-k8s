@@ -1,61 +1,35 @@
-
-# search and replace clearmashGetEntityIdsJob to your job name
-#
-# can be used as-is, set the following helm values:
-#
-# global:
-#   environmentName: staging
-#   opsRepoSlug: orihoch/sk8s
-#   opsRepoBranch: master
-# noise:
-#   name: noise
-#   # schedule: "@daily"
-#   nodePool: default-pool
-#   image: orihoch/sk8s-pipelines
-#   pipelinesScript: dpp run ./noise
-#   # secretEnvFrom: secret-env-vars
-#   GS_BUCKET_NAME: sk8s-pipelines-data
-#   OUTPUT_PATH_PREFIX: noise-
-#   # INITIAL_SYNC_SCRIPT: gsutil -m rsync -r gs://sk8s-pipelines-data/noise-2017-12-06/ /pipelines/data/
-#   opsSecretName: ops
-
 {{ if .Values.enabled }}{{ if .Values.clearmashGetEntityIdsJob }}
 apiVersion: batch/v1
 kind: Job
 #apiVersion: batch/v1beta1
 #kind: CronJob
 metadata:
-  name: {{ .Values.clearmashGetEntityIdsJob.name | quote }}
+  name: clearmash-get-entity-ids
 spec:
-#  schedule: {{ .Values.clearmashGetEntityIdsJob.schedule | quote }}
+#  schedule: "@daily"
 #  concurrencyPolicy: Forbid
 #  jobTemplate:
 #    spec:
   template:
     metadata:
-      name: {{ .Values.clearmashGetEntityIdsJob.name | quote }}
+      name: clearmash-get-entity-ids
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.clearmashGetEntityIdsJob.nodePool | quote }}
       containers:
       - name: pipelines
-        image: {{ .Values.clearmashGetEntityIdsJob.image | quote }}
-        # the pipelineScript will contain something like 'dpp run ./noise'
+        image: gcr.io/bh-org-01/mojp-dbs-pipelines:35ec0999d4cbafe444d01f8c8b799706d7883ead
         command:
         - bash
         - "-c"
         - |
           rm -f /pipelines/data/done &&\
-          {{ .Values.clearmashGetEntityIdsJob.pipelinesScript }} &&\
+          dpp run ./clearmash/web-content-folder-item-ids &&\
           touch /pipelines/data/done
         volumeMounts:
         - name: data
           mountPath: /pipelines/data
-        {{ if .Values.clearmashGetEntityIdsJob.secretEnvFrom }}
         envFrom:
         - secretRef:
-            name: {{ .Values.clearmashGetEntityIdsJob.secretEnvFrom | quote }}
-        {{ end }}
+            name: clearmash
       - name: ops
         image: "orihoch/sk8sops:pipelines-google-storage-sync"
         resources:
@@ -70,13 +44,9 @@ spec:
         - name: OPS_REPO_BRANCH
           value: {{ .Values.global.opsRepoBranch }}
         - name: GS_BUCKET_NAME
-          value: {{ .Values.clearmashGetEntityIdsJob.GS_BUCKET_NAME | quote }}
+          value: mojp-dbs-pipelines-data
         - name: OUTPUT_PATH_PREFIX
-          value: {{ .Values.clearmashGetEntityIdsJob.OUTPUT_PATH_PREFIX | quote }}
-        # can be used to sync from google storage, e.g.:
-        # gsutil -m rsync -r gs://bucket-name/path/ /pipelines/data/
-        - name: INITIAL_SYNC_SCRIPT
-          value: {{ .Values.clearmashGetEntityIdsJob.INITIAL_SYNC_SCRIPT | quote }}
+          clearmash-get-entity-ids-job-
         volumeMounts:
         - name: data
           mountPath: /pipelines/data
@@ -86,7 +56,7 @@ spec:
       volumes:
       - name: k8s-ops
         secret:
-          secretName: {{ .Values.clearmashGetEntityIdsJob.opsSecretName }}
+          secretName: ops
       - name: data
         emptyDir: {}
       restartPolicy: Never

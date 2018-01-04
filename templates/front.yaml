@@ -8,8 +8,6 @@ spec:
     metadata:
       labels: {app: front}
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - image: {{ .Values.front.image | quote }}
         name: front

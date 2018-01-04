@@ -20,8 +20,6 @@ spec:
           requests: {cpu: 20m}
         volumeMounts:
         - {mountPath: /etc/bhs, name: etc-bhs, readOnly: true}
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       volumes:
       - name: etc-bhs
         secret:

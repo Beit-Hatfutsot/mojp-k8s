@@ -21,8 +21,6 @@ spec:
       labels:
         app: pipelines
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: pipelines
         image: {{ .Values.pipelines.image }}

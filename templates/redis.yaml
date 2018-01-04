@@ -7,8 +7,6 @@ spec:
   template:
     metadata: {labels: {app: "redis"}}
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.global.defaultNodePool | quote }}
       containers:
       - name: redis
         image: redis

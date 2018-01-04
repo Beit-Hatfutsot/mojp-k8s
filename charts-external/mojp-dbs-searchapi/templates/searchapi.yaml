@@ -21,8 +21,6 @@ spec:
       labels:
         app: mojp-dbs-searchapi
     spec:
-      nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.nodePool | quote }}
       containers:
       - name: ops
         image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
@@ -67,7 +65,7 @@ spec:
             cpu: 20m
         env:
         - name: ES_HOST
-          value: elasticsearch
+          value: {{ .Values.ES_HOST | quote }}
         volumeMounts:
         - name: data
           mountPath: /opt/mojp-dbs-pipelines/data
