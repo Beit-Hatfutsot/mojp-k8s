@@ -1,22 +1,16 @@
 {{ if .Values.enabled }}{{ if .Values.clearmashDownloadEntitiesJob }}
 apiVersion: batch/v1
 kind: Job
-#apiVersion: batch/v1beta1
-#kind: CronJob
 metadata:
   name: clearmash-download-entities
 spec:
-#  schedule: "@daily"
-#  concurrencyPolicy: Forbid
-#  jobTemplate:
-#    spec:
   template:
     metadata:
       name: clearmash-download-entities
     spec:
       containers:
       - name: pipelines
-        image: gcr.io/bh-org-01/mojp-dbs-pipelines:3670ab4098b65cc1642b35b8d8dee79f4f5bb3d5
+        image: {{ .Values.clearmashDownloadEntitiesJob.image }}
         command:
         - bash
         - "-c"
@@ -30,8 +24,8 @@ spec:
         - secretRef:
             name: clearmash
       - name: ops
-        image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
-        resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
+        image: orihoch/sk8sops:pipelines-gcs@sha256:c232fcbd4ffff456b9cb9312a4b7d62cec8c0fe6b36bf31e50625a618f129746
+        resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
         env:
         - name: CLOUDSDK_CORE_PROJECT
           value: bh-org-01
@@ -40,7 +34,7 @@ spec:
         - name: INITIAL_SYNC_SCRIPT
           value: >
                  mkdir -p /pipelines/data/clearmash/entity-ids &&
-                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-02-10-30/clearmash/entity-ids/ /pipelines/data/clearmash/entity-ids/
+                 gsutil -m rsync -r {{ .Values.clearmashDownloadEntitiesJob.input }} /pipelines/data/clearmash/entity-ids/
         volumeMounts:
         - name: data
           mountPath: /pipelines/data

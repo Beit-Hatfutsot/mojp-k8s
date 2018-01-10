@@ -1,22 +1,16 @@
 {{ if .Values.enabled }}{{ if .Values.clearmashPrepForElasticsearch }}
 apiVersion: batch/v1
 kind: Job
-#apiVersion: batch/v1beta1
-#kind: CronJob
 metadata:
   name: clearmash-prep-for-elasticsearch
 spec:
-#  schedule: "@daily"
-#  concurrencyPolicy: Forbid
-#  jobTemplate:
-#    spec:
   template:
     metadata:
       name: clearmash-prep-for-elasticsearch
     spec:
       containers:
       - name: pipelines
-        image: gcr.io/bh-org-01/mojp-dbs-pipelines:b62285d10954ed7902cf6f8d9d10b16022e61cd1
+        image: {{ .Values.clearmashPrepForElasticsearch.image }}
         command:
         - bash
         - "-c"
@@ -31,8 +25,8 @@ spec:
           touch /pipelines/data/done
         volumeMounts: [{"name": "data", "mountPath": "/pipelines/data"}]
       - name: ops
-        image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
-        resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
+        image: orihoch/sk8sops:pipelines-gcs@sha256:c232fcbd4ffff456b9cb9312a4b7d62cec8c0fe6b36bf31e50625a618f129746
+        resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
         env:
         - name: CLOUDSDK_CORE_PROJECT
           value: bh-org-01
@@ -41,7 +35,7 @@ spec:
         - name: INITIAL_SYNC_SCRIPT
           value: >
                  mkdir -p /pipelines/data/clearmash/download-entities &&
-                 gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-02-12-29/clearmash/download-entities/ /pipelines/data/clearmash/download-entities/
+                 gsutil -m rsync -r {{ .Values.clearmashPrepForElasticsearch.input }} /pipelines/data/clearmash/download-entities/
         volumeMounts:
         - name: data
           mountPath: /pipelines/data

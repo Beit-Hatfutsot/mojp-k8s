@@ -1,22 +1,16 @@
 {{ if .Values.enabled }}{{ if .Values.clearmashSplitEntitiesFoldersJob }}
 apiVersion: batch/v1
 kind: Job
-#apiVersion: batch/v1beta1
-#kind: CronJob
 metadata:
   name: clearmash-split-entities-folders
 spec:
-#  schedule: "@daily"
-#  concurrencyPolicy: Forbid
-#  jobTemplate:
-#    spec:
   template:
     metadata:
       name: clearmash-split-entities-folders
     spec:
       containers:
       - name: pipelines
-        image: gcr.io/bh-org-01/mojp-dbs-pipelines:94f69b507a682400c1000509d6838d22973e5231
+        image: {{ .Values.clearmashSplitEntitiesFoldersJob.image }}
         command:
         - bash
         - "-c"
@@ -28,17 +22,15 @@ spec:
           touch /pipelines/data/done
         volumeMounts: [{"name": "data", "mountPath": "/pipelines/data"}]
       - name: ops
-        image: orihoch/sk8sops:pipelines-gcs@sha256:a6e8f94c2e68fc8da552abcbdac865763d40e79895b87ff06a98ebd588070cf0
-        resources: {"requests": {"cpu": "0.01", "memory": "100Mi"}}
+        image: orihoch/sk8sops:pipelines-gcs@sha256:c232fcbd4ffff456b9cb9312a4b7d62cec8c0fe6b36bf31e50625a618f129746
+        resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
         env:
         - name: CLOUDSDK_CORE_PROJECT
           value: bh-org-01
         - name: GS_BUCKET_NAME
           value: mojp-dbs-pipelines-data
-        - name: DISABLE_TIMESTAMP
-          value: "1"
         - name: INITIAL_SYNC_SCRIPT
-          value: gsutil -m rsync -r gs://mojp-dbs-pipelines-data/clearmash-get-entity-ids-job-2017-12-29-05-00 /pipelines/data/
+          value: gsutil -m rsync -r {{ .Values.clearmashSplitEntitiesFoldersJob.input }} /pipelines/data/
         volumeMounts:
         - name: data
           mountPath: /pipelines/data

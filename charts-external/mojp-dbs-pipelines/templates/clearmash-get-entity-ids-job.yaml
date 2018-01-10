@@ -1,22 +1,16 @@
 {{ if .Values.enabled }}{{ if .Values.clearmashGetEntityIdsJob }}
 apiVersion: batch/v1
 kind: Job
-#apiVersion: batch/v1beta1
-#kind: CronJob
 metadata:
   name: clearmash-get-entity-ids
 spec:
-#  schedule: "@daily"
-#  concurrencyPolicy: Forbid
-#  jobTemplate:
-#    spec:
   template:
     metadata:
       name: clearmash-get-entity-ids
     spec:
       containers:
       - name: pipelines
-        image: gcr.io/bh-org-01/mojp-dbs-pipelines:35ec0999d4cbafe444d01f8c8b799706d7883ead
+        image: {{ .Values.clearmashGetEntityIdsJob.image }}
         command:
         - bash
         - "-c"
@@ -31,22 +25,13 @@ spec:
         - secretRef:
             name: clearmash
       - name: ops
-        image: "orihoch/sk8sops:pipelines-google-storage-sync"
-        resources:
-          requests:
-            cpu: "0.01"
-            memory: "100Mi"
+        image: orihoch/sk8sops:pipelines-gcs@sha256:c232fcbd4ffff456b9cb9312a4b7d62cec8c0fe6b36bf31e50625a618f129746
+        resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
         env:
-        - name: K8S_ENVIRONMENT
-          value: {{ .Values.global.environmentName }}
-        - name: OPS_REPO_SLUG
-          value: {{ .Values.global.opsRepoSlug }}
-        - name: OPS_REPO_BRANCH
-          value: {{ .Values.global.opsRepoBranch }}
+        - name: CLOUDSDK_CORE_PROJECT
+          value: bh-org-01
         - name: GS_BUCKET_NAME
           value: mojp-dbs-pipelines-data
-        - name: OUTPUT_PATH_PREFIX
-          clearmash-get-entity-ids-job-
         volumeMounts:
         - name: data
           mountPath: /pipelines/data
