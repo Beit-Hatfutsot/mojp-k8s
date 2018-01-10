@@ -10,7 +10,6 @@ redis:
   enabled: true
 
 global:
-  defaultNodePool: default-pool
   enableSitemap: true
   debug: false
   environmentName: production
@@ -23,6 +22,7 @@ minio:
   persistentDiskName: dbs-production-minio-data
 
 nginx:
+  enabled: true
   htpasswdSecretName: nginx-htpasswd
 
 pipelines:
@@ -33,6 +33,7 @@ pipelines:
   sitemapEsIndex: mojp-prod
 
 traefik:
+  enabled: true
   acmeDomains: |
     [[acme.domains]]
       main = "test-dbs.bh.org.il"
