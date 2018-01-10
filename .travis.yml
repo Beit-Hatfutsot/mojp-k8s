@@ -14,7 +14,7 @@ script:
       ([ "${DEPLOY_TAGS}" == "true" ] && [ "${TRAVIS_TAG}" != "" ]) \
      )
   then
-      openssl aes-256-cbc -K $encrypted_f32f35ec6644_key -iv $encrypted_f32f35ec6644_iv -in "environments/${DEPLOY_ENVIRONMENT}/k8s-ops-secret.json.enc" -out secret-k8s-ops.json -d
+      openssl aes-256-cbc -K $encrypted_f32f35ec6644_key -iv $encrypted_f32f35ec6644_iv -in ./k8s-ops-secret.json.enc -out ./secret-k8s-ops.json -d
       K8S_ENVIRONMENT_NAME="${DEPLOY_ENVIRONMENT}"
       OPS_REPO_SLUG="Beit-Hatfutsot/mojp-k8s"
       OPS_REPO_BRANCH="${DEPLOY_BRANCH}"

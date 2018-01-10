@@ -103,3 +103,5 @@ front-nginx-prerender.conf
 secret*
 .idea
 get_helm.sh
+
+run_docker_ops.sh
