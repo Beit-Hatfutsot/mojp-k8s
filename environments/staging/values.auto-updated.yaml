@@ -3,4 +3,4 @@ back:
 front:
   image: gcr.io/bh-org-01/mojp-dbs-front:8f9b76e97790e95ec49d4e3347b3f7b289745a35
 mojp-dbs-pipelines:
-  image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:14b7df1ff2114ccb3e32a4e381ef8908422a0adc
+  image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:937b8dfab43bdad40f684c3d0ed23367407d478a
