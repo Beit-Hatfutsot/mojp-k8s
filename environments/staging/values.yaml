@@ -54,12 +54,11 @@ kibana:
 mojp-dbs-pipelines:
   enabled: true
   # these jobs will re-run only if any of the values change
+  clearmashGetEntityIdsJob:
+    image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:14b7df1ff2114ccb3e32a4e381ef8908422a0adc
   clearmashDownloadEntitiesJob:
     image: gcr.io/bh-org-01/mojp-dbs-pipelines:3670ab4098b65cc1642b35b8d8dee79f4f5bb3d5
     input: gs://mojp-dbs-pipelines-data/2018-01-02-10-30/clearmash/entity-ids/
-  clearmashGetEntityIdsJob:
-    image: gcr.io/bh-org-01/mojp-dbs-pipelines:35ec0999d4cbafe444d01f8c8b799706d7883ead
-    input:
   clearmashPrepForElasticsearch:
     image: gcr.io/bh-org-01/mojp-dbs-pipelines:b62285d10954ed7902cf6f8d9d10b16022e61cd1
     input: gs://mojp-dbs-pipelines-data/2018-01-02-12-29/clearmash/download-entities/

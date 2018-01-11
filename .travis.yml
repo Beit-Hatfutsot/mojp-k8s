@@ -24,7 +24,7 @@ script:
          RES=0;
          ! ./helm_upgrade.sh && echo 'failed helm upgrade' && RES=1;
          ! ./helm_upgrade_external_chart.sh mojp-dbs-elasticsearch && echo 'failed mojp-dbs-elasticsearch upgrade' && RES=1;
-         ! ./helm_upgrade_external_chart.sh mojp-dbs-pipelines && echo 'failed mojp-dbs-pipelines upgrade' && RES=1;
+         ! ./helm_upgrade_external_chart.sh mojp-dbs-pipelines --force && echo 'failed mojp-dbs-pipelines upgrade' && RES=1;
          ! ./helm_upgrade_external_chart.sh mojp-dbs-searchapi && echo 'failed mojp-dbs-searchapi upgrade' && RES=1;
          ! ./helm_upgrade_external_chart.sh mojp-dbs-searchapp && echo 'failed mojp-dbs-searchapp upgrade' && RES=1;
          exit "'$'"RES
