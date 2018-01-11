@@ -19,10 +19,6 @@ spec:
   - name: "8083"
     port: 8083
   {{ end }}
-  {{ if .Values.elasticsearch.enabled }}
-  - name: "8084"
-    port: 8084
-  {{ end }}
   selector:
     app: nginx
 ---
