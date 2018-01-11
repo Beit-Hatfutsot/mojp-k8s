@@ -54,9 +54,6 @@ spec:
         {{ if .Values.kibana.enabled }}
         - containerPort: 8083
         {{ end }}
-        {{ if .Values.elasticsearch.enabled }}
-        - containerPort: 8084
-        {{ end }}
         resources:
           requests:
             cpu: 1m

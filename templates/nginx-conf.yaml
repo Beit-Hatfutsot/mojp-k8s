@@ -46,17 +46,6 @@ data:
     }
     {{ end }}
 
-    {{ if .Values.elasticsearch.enabled }}
-    server {
-        listen 8084;
-        server_name  _;
-        location / {
-          proxy_pass http://elasticsearch:9200;
-          include /etc/nginx/conf.d/restricted.inc;
-        }
-    }
-    {{ end }}
-
   healthcheck.inc: |
     location = / {
         return 200 'it works!';
