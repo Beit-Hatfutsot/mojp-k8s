@@ -57,6 +57,9 @@ spec:
           mountPath: /traefik-acme
         args:
         - "--configFile=/etc-traefik/traefik.toml"
+        env:
+        - name: CLOUDFLARE_EMAIL
+          value: {{ .Values.traefik.CLOUDFLARE_EMAIL | quote }}
       volumes:
       - name: etc-traefik
         configMap:
