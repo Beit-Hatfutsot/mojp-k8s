@@ -43,7 +43,6 @@ traefik:
   loadBalancerIP: 35.188.195.70
 #  nodeHostName: gke-mojp2-default-pool-2a2857ee-0sn6
   rootHost: "staging.myjewishstory.org"
-#  backupJob: true
   dnsProvider: cloudflare
   CLOUDFLARE_EMAIL: ori@uumpa.com
 
