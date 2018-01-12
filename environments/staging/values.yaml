@@ -55,15 +55,15 @@ mojp-dbs-pipelines:
   # these jobs will re-run only if any of the values change
   clearmashGetEntityIdsJob:
     image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:937b8dfab43bdad40f684c3d0ed23367407d478a
+  clearmashSplitEntitiesFoldersJob:
+    image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:7bac0da9c1777351f40f422c664a7168b52e218a
+    input: gs://mojp-dbs-pipelines-data/2018-01-11-16-09
   clearmashDownloadEntitiesJob:
     image: gcr.io/bh-org-01/mojp-dbs-pipelines:3670ab4098b65cc1642b35b8d8dee79f4f5bb3d5
     input: gs://mojp-dbs-pipelines-data/2018-01-02-10-30/clearmash/entity-ids/
   clearmashPrepForElasticsearch:
     image: gcr.io/bh-org-01/mojp-dbs-pipelines:b62285d10954ed7902cf6f8d9d10b16022e61cd1
     input: gs://mojp-dbs-pipelines-data/2018-01-02-12-29/clearmash/download-entities/
-  clearmashSplitEntitiesFoldersJob:
-    image: gcr.io/bh-org-01/mojp-dbs-pipelines:94f69b507a682400c1000509d6838d22973e5231
-    input: gs://mojp-dbs-pipelines-data/clearmash-get-entity-ids-job-2017-12-29-05-00
 
 mojp-dbs-searchapi:
   enabled: true
