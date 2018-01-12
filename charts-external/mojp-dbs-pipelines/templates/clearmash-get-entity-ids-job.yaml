@@ -11,6 +11,8 @@ spec:
       containers:
       - name: pipelines
         image: {{ .Values.clearmashGetEntityIdsJob.image }}
+        # updated Jan 12, 2018
+        resources: {"requests": {"cpu": "100m", "memory": "800Mi"}}
         command:
         - bash
         - "-c"
