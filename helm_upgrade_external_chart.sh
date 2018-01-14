@@ -36,19 +36,25 @@ do
 done
 
 VALUES=`cat "${TEMPDIR}/values.yaml"`
-CMD="helm upgrade -f ${TEMPDIR}/values.yaml ${RELEASE_NAME} ${CHART_DIRECTORY} ${@:2}"
-if ! helm upgrade -f "${TEMPDIR}/values.yaml" "${RELEASE_NAME}" "${CHART_DIRECTORY}" "${@:2}"; then
-    echo
-    echo "${TEMPDIR}/values.yaml"
-    echo "${VALUES}"
-    echo
-    echo "CMD"
-    echo "${CMD}"
-    echo
-    echo "helm upgrade failed"
-    exit 1
+
+if [ `./read_yaml.py "${TEMPDIR}/values.yaml" enabled` == "true" ]; then
+    CMD="helm upgrade -f ${TEMPDIR}/values.yaml ${RELEASE_NAME} ${CHART_DIRECTORY} ${@:2}"
+    if ! helm upgrade -f "${TEMPDIR}/values.yaml" "${RELEASE_NAME}" "${CHART_DIRECTORY}" "${@:2}"; then
+        echo
+        echo "${TEMPDIR}/values.yaml"
+        echo "${VALUES}"
+        echo
+        echo "CMD"
+        echo "${CMD}"
+        echo
+        echo "helm upgrade failed"
+        exit 1
+    else
+        rm -rf $TEMPDIR
+        echo "Great Success!"
+        exit 0
+    fi
 else
-    rm -rf $TEMPDIR
-    echo "Great Success!"
+    echo "chart is disabled, not performing upgrade"
     exit 0
 fi

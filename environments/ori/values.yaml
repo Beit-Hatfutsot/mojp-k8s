@@ -10,6 +10,7 @@ redis:
   enabled: false
 
 global:
+  enableRootChart: false
   enableSitemap: false
   debug: true
   environmentName: ori

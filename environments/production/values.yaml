@@ -10,6 +10,7 @@ redis:
   enabled: true
 
 global:
+  enableRootChart: false
   enableSitemap: true
   debug: false
   environmentName: production
