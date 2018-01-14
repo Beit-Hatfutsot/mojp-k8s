@@ -19,15 +19,24 @@ script:
       K8S_ENVIRONMENT_NAME="${DEPLOY_ENVIRONMENT}"
       OPS_REPO_SLUG="Beit-Hatfutsot/mojp-k8s"
       OPS_REPO_BRANCH="${DEPLOY_BRANCH}"
+      if [ "${DEPLOY_ENVIRONMENT}" == "ori" ]; then
+        UPGRADE_SCRIPT="
+          ! ./helm_upgrade_external_chart.sh mojp-dbs-pipelines --force && echo 'failed mojp-dbs-pipelines upgrade' && RES=1;
+        "
+      else
+        UPGRADE_SCRIPT="
+          ! ./helm_upgrade.sh && echo 'failed helm upgrade' && RES=1;
+          ! ./helm_upgrade_external_chart.sh mojp-dbs-elasticsearch && echo 'failed mojp-dbs-elasticsearch upgrade' && RES=1;
+          ! ./helm_upgrade_external_chart.sh mojp-dbs-pipelines --force && echo 'failed mojp-dbs-pipelines upgrade' && RES=1;
+          ! ./helm_upgrade_external_chart.sh mojp-dbs-searchapi && echo 'failed mojp-dbs-searchapi upgrade' && RES=1;
+          ! ./helm_upgrade_external_chart.sh mojp-dbs-searchapp && echo 'failed mojp-dbs-searchapp upgrade' && RES=1;
+        "
+      fi
       wget https://raw.githubusercontent.com/OriHoch/sk8s-ops/master/run_docker_ops.sh
       chmod +x run_docker_ops.sh
       if ./run_docker_ops.sh "${K8S_ENVIRONMENT_NAME}" "
          RES=0;
-         ! ./helm_upgrade.sh && echo 'failed helm upgrade' && RES=1;
-         ! ./helm_upgrade_external_chart.sh mojp-dbs-elasticsearch && echo 'failed mojp-dbs-elasticsearch upgrade' && RES=1;
-         ! ./helm_upgrade_external_chart.sh mojp-dbs-pipelines --force && echo 'failed mojp-dbs-pipelines upgrade' && RES=1;
-         ! ./helm_upgrade_external_chart.sh mojp-dbs-searchapi && echo 'failed mojp-dbs-searchapi upgrade' && RES=1;
-         ! ./helm_upgrade_external_chart.sh mojp-dbs-searchapp && echo 'failed mojp-dbs-searchapp upgrade' && RES=1;
+         $UPGRADE_SCRIPT
          exit "'$'"RES
       " "orihoch/sk8s-ops" "${OPS_REPO_SLUG}" "${OPS_REPO_BRANCH}"; then
         true
