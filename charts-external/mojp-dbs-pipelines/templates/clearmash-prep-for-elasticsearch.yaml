@@ -25,7 +25,7 @@ spec:
           touch /pipelines/data/done
         volumeMounts: [{"name": "data", "mountPath": "/pipelines/data"}]
       - name: ops
-        image: orihoch/sk8sops:pipelines-gcs@sha256:c232fcbd4ffff456b9cb9312a4b7d62cec8c0fe6b36bf31e50625a618f129746
+        image: gcr.io/uumpa-public/sk8s-google-storage-sync:v0.0.2
         resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
         env:
         - name: CLOUDSDK_CORE_PROJECT
@@ -35,7 +35,7 @@ spec:
         - name: INITIAL_SYNC_SCRIPT
           value: >
                  mkdir -p /pipelines/data/clearmash/download-entities &&
-                 gsutil -m rsync -r {{ .Values.clearmashPrepForElasticsearch.input }} /pipelines/data/clearmash/download-entities/
+                 gsutil -m rsync -x '^done|synced$' -r {{ .Values.clearmashPrepForElasticsearch.input }} /pipelines/data/clearmash/download-entities/
         volumeMounts:
         - name: data
           mountPath: /pipelines/data

@@ -1,0 +1,76 @@
+back:
+  enabled: false
+#  etcBhsSecretName: etc-bhs
+
+front:
+  enabled: false
+#  etcBhsSecretName: etc-bhs
+
+redis:
+  enabled: false
+
+global:
+  enableSitemap: false
+  debug: true
+  environmentName: ori
+  opsRepoSlug: Beit-Hatfutsot/mojp-k8s
+  opsRepoBranch: master
+
+minio:
+  enabled: false
+#  envVarsSecretName: env-vars
+#  persistentDiskName: dbs-production-minio-data
+
+nginx:
+  enabled: false
+  htpasswdSecretName: nginx-htpasswd
+
+pipelines:
+  enabled: false
+#  envVarsSecretName: env-vars
+#  image: orihoch/mojp-dbs-back-pipelines:sitemap-aws-principal-patch
+#  sitemapEsHost: bhs-prod-db
+#  sitemapEsIndex: mojp-prod
+
+traefik:
+  enabled: false
+#  acmeDomains: |
+#    [[acme.domains]]
+#      main = "staging.myjewishstory.org"
+#  acmeEmail: ori@uumpa.com
+##  enableCjhProxy: true
+##  frontHostRule: "Host: staging-dbs.bh.org.il;"
+#  loadBalancerIP: 35.188.195.70
+##  nodeHostName: gke-mojp2-default-pool-2a2857ee-0sn6
+#  rootHost: "staging.myjewishstory.org"
+#  dnsProvider: cloudflare
+#  CLOUDFLARE_EMAIL: ori@uumpa.com
+
+kibana:
+  enabled: false
+  elasticsearchUrl: http://mojp-dbs-elasticsearch:9200
+
+mojp-dbs-pipelines:
+  enabled: true
+  # these jobs will re-run only if any of the values change
+#  clearmashGetEntityIdsJob:
+#    image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:937b8dfab43bdad40f684c3d0ed23367407d478a
+  clearmashSplitEntitiesFoldersJob:
+    image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:7bac0da9c1777351f40f422c664a7168b52e218a
+    input: gs://mojp-dbs-pipelines-data/2018-01-11-16-09
+#  clearmashDownloadEntitiesJob:
+#    image: gcr.io/bh-org-01/mojp-dbs-pipelines:3670ab4098b65cc1642b35b8d8dee79f4f5bb3d5
+#    input: gs://mojp-dbs-pipelines-data/2018-01-02-10-30/clearmash/entity-ids/
+#  clearmashPrepForElasticsearch:
+#    image: gcr.io/bh-org-01/mojp-dbs-pipelines:b62285d10954ed7902cf6f8d9d10b16022e61cd1
+#    input: gs://mojp-dbs-pipelines-data/2018-01-02-12-29/clearmash/download-entities/
+
+mojp-dbs-searchapi:
+  enabled: false
+  ES_HOST: mojp-dbs-elasticsearch
+
+mojp-dbs-searchapp:
+  enabled: false
+
+mojp-dbs-elasticsearch:
+  enabled: false

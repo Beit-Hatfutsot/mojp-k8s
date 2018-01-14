@@ -27,7 +27,7 @@ spec:
         - secretRef:
             name: clearmash
       - name: ops
-        image: orihoch/sk8sops:pipelines-gcs@sha256:c232fcbd4ffff456b9cb9312a4b7d62cec8c0fe6b36bf31e50625a618f129746
+        image: gcr.io/uumpa-public/sk8s-google-storage-sync:v0.0.2
         resources: {"requests": {"cpu": "1m", "memory": "2Mi"}}
         env:
         - name: CLOUDSDK_CORE_PROJECT
