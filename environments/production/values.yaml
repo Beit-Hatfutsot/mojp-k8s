@@ -49,8 +49,8 @@ traefik:
   loadBalancerIP: 35.205.123.187
   nodeHostName: gke-mojp-default-pool-33bac5d8-rm42
   rootHost: "dbs.bh.org.il"
-#  dnsProvider: cloudflare
-#  CLOUDFLARE_EMAIL:
+  dnsProvider: cloudflare
+  CLOUDFLARE_EMAIL: nurit@bh.org.il
 
 kibana:
   enabled: false
