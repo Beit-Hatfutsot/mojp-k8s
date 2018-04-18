@@ -1,4 +1,4 @@
 back:
   image: gcr.io/bh-org-01/mojp-dbs-back:69483f028f4ce6d09d4332f116e31303fce621f4
 front:
-  image: gcr.io/bh-org-01/mojp-dbs-front:8f9b76e97790e95ec49d4e3347b3f7b289745a35
+  image: gcr.io/bh-org-01/mojp-dbs-front:38c2d9212af2b1e6687936a24f80383dec27c933
