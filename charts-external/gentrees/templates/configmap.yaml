@@ -1,0 +1,58 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gentrees
+data:
+  rev-proxy-host.inc: |
+    proxy_pass http://gentrees-server:3000;
+
+  auth.inc: |
+    auth_basic "Restricted";
+    auth_basic_user_file /etc/nginx/htpasswd;
+
+  client-default.conf: |
+    server {
+        listen         80;
+        server_name    idftrees.bh.org.il;
+        location /trees/ {
+            include /etc/nginx/conf.d/auth.inc;
+            proxy_pass http://gentrees-export;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+        location /mongoexpress/ {
+            include /etc/nginx/conf.d/auth.inc;
+            proxy_pass http://gentrees-mongo:8081;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+        location = / {
+            include /etc/nginx/conf.d/rev-proxy.inc;
+        }
+        location ^~ /api/ {
+            include /etc/nginx/conf.d/rev-proxy.inc;
+        }
+        location / {
+            root /home/ftapp/current/server/public;
+            try_files $uri $uri/;
+        }
+    }
+
+  export-default.conf: |
+    server {
+        listen         80;
+        server_name    idftrees.bh.org.il;
+        location /trees/ {
+          root /home/ftapp;
+          try_files $uri =404;
+        }
+    }
+
+{{ end }}

@@ -1,0 +1,54 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: gentrees-mongo
+spec:
+  selector:
+    app: gentrees-mongo
+  ports:
+  - port: 27017
+    name: "27017"
+  - port: 8081
+    name: "8081"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gentrees-mongo
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: gentrees-mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+        resources: {"requests": {"cpu": "20m", "memory": "50Mi"}, "limits": {"cpu": "100m", "memory": "400Mi"}}
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: data
+          mountPath: /data/db
+      - name: express
+        image: mongo-express
+        env:
+        - name: ME_CONFIG_MONGODB_SERVER
+          value: localhost
+        - name: ME_CONFIG_MONGODB_ENABLE_ADMIN
+          value: "true"
+        - name: ME_CONFIG_SITE_BASEURL
+          value: /mongoexpress/
+        ports:
+        - containerPort: 8081
+        resources: {"requests": {"cpu": "20m", "memory": "50Mi"}, "limits": {"cpu": "100m", "memory": "400Mi"}}
+      volumes:
+      - name: data
+        gcePersistentDisk:
+          # gcloud --project=bh-org-01 compute disks create --size=10GB --zone=europe-west1-b gentrees-mongo
+          pdName: gentrees-mongo
+{{ end }}
