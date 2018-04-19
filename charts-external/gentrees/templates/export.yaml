@@ -1,0 +1,74 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: gentrees-export
+spec:
+  selector:
+    app: gentrees-export
+  ports:
+  - port: 80
+    name: "80"
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gentrees-export
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: gentrees-export
+      annotations:
+        # update the pod on configmap changes
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: export
+        image: {{ .Values.exportImage | default "orihoch/beit-hatfutsot-gentrees-app-export:latest" | quote }}
+        resources: {"requests": {"cpu": "50m", "memory": "50Mi"}, "limits": {"cpu": "150m", "memory": "400Mi"}}
+        env:
+        - name: FREQUENCY_SECONDS
+          value: "86400"
+        - name: MONGO_URL
+          value: mongodb://gentrees-mongo:27017/gentreeDb
+        - name: BACKUP_MONGO_HOST
+          value: gentrees-mongo
+        - name: BACKUP_PREFIX
+          value: cthulu
+        - name: BACKUP_DESTINATION
+          value: gs://bhs-bhp-backup/mongo/
+        args:
+        - backup-sync
+        volumeMounts:
+        - name: ftapp
+          mountPath: /home/ftapp
+        - name: secret
+          mountPath: /secret_service_key
+          subPath: secret_service_key
+      - name: nginx
+        image: {{ .Values.nginxImage | default "orihoch/beit-hatfutsot-gentrees-app-nginx:latest" | quote }}
+        resources: {"requests": {"cpu": "20m", "memory": "50Mi"}, "limits": {"cpu": "50m", "memory": "200Mi"}}
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: ftapp
+          mountPath: /home/ftapp
+        - name: configmap
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: export-default.conf
+      volumes:
+      - name: ftapp
+        gcePersistentDisk:
+          # gcloud --project=bh-org-01 compute disks create --size=10GB --zone=europe-west1-b gentrees-ftapp
+          pdName: gentrees-ftapp
+      - name: configmap
+        configMap:
+          name: gentrees
+      - name: secret
+        secret:
+          secretName: gentrees
+{{ end }}

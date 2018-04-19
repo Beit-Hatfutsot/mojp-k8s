@@ -84,3 +84,6 @@ mojp-dbs-searchapp:
 
 mojp-dbs-elasticsearch:
   enabled: false
+
+gentrees:
+  enabled: true

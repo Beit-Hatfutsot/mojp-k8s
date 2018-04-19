@@ -1,0 +1,74 @@
+{{ if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: gentrees-client
+spec:
+  selector:
+    app: gentrees-client
+  ports:
+  - port: 80
+    name: "80"
+  type: LoadBalancer
+  # gcloud --project=bh-org-01 compute addresses create gentrees-client --region=europe-west1
+  # gcloud --project=bh-org-01 compute addresses describe gentrees-client --region=europe-west1 | grep ^address:
+  loadBalancerIP: 35.187.163.14
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gentrees-client
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gentrees-client
+      annotations:
+        # update the pod on configmap changes
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: client
+        image: {{ .Values.clientImage | default "orihoch/beit-hatfutsot-gentrees-app-client:latest" | quote }}
+        resources: {"requests": {"cpu": "50m", "memory": "100Mi"}, "limits": {"cpu": "200m", "memory": "500Mi"}}
+        command:
+        - bash
+        - "-c"
+        - |
+          mkdir -p /home/ftapp/current/server &&\
+          /client/entrypoint.sh copy /home/ftapp/current/server &&\
+          while true; do sleep 86400; done
+        volumeMounts:
+        - name: ftapp
+          mountPath: /home/ftapp
+      - name: nginx
+        image: {{ .Values.nginxImage | default "orihoch/beit-hatfutsot-gentrees-app-nginx:latest" | quote }}
+        resources: {"requests": {"cpu": "20m", "memory": "50Mi"}, "limits": {"cpu": "50m", "memory": "200Mi"}}
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: ftapp
+          mountPath: /home/ftapp
+        - name: configmap
+          mountPath: /etc/nginx/conf.d/rev-proxy-host.inc
+          subPath: rev-proxy-host.inc
+        - name: configmap
+          mountPath: /etc/nginx/conf.d/auth.inc
+          subPath: auth.inc
+        - name: configmap
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: client-default.conf
+        - name: secret
+          mountPath: /etc/nginx/htpasswd
+          subPath: htpasswd
+      volumes:
+      - name: ftapp
+        emptyDir: {}
+      - name: configmap
+        configMap:
+          name: gentrees
+      - name: secret
+        secret:
+          secretName: gentrees
+{{ end }}
