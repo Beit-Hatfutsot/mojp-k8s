@@ -49,6 +49,9 @@ spec:
         - name: secret
           mountPath: /secret_service_key
           subPath: secret_service_key
+        - mountPath: /etc/bhs
+          name: etc-bhs
+          readOnly: true
       - name: nginx
         image: {{ .Values.nginxImage | default "orihoch/beit-hatfutsot-gentrees-app-nginx:latest" | quote }}
         resources: {"requests": {"cpu": "20m", "memory": "50Mi"}, "limits": {"cpu": "50m", "memory": "200Mi"}}
@@ -61,6 +64,9 @@ spec:
           mountPath: /etc/nginx/conf.d/default.conf
           subPath: export-default.conf
       volumes:
+      - name: etc-bhs
+        secret:
+          secretName: etc-bhs
       - name: ftapp
         gcePersistentDisk:
           # gcloud --project=bh-org-01 compute disks create --size=10GB --zone=europe-west1-b gentrees-ftapp

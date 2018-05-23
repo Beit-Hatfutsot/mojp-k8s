@@ -1,5 +1,11 @@
 # gentrees chart
 
+## Manual sending of gentrees to email
+
+```
+kubectl exec gentrees-export-pod-name -- /export/entrypoint.sh send-trees -s 0 -e target@email.com
+```
+
 ## Deployment
 
 ```
