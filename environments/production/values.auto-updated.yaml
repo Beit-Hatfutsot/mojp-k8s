@@ -3,7 +3,7 @@ back:
 front:
   image: gcr.io/bh-org-01/mojp-dbs-front:38c2d9212af2b1e6687936a24f80383dec27c933
 gentrees:
-  clientImage: orihoch/beit-hatfutsot-gentrees-app-client:51b66c51235d854084f1f905a272889bfbcd5426
-  exportImage: orihoch/beit-hatfutsot-gentrees-app-export:51b66c51235d854084f1f905a272889bfbcd5426
-  nginxImage: orihoch/beit-hatfutsot-gentrees-app-nginx:51b66c51235d854084f1f905a272889bfbcd5426
-  serverImage: orihoch/beit-hatfutsot-gentrees-app-server:51b66c51235d854084f1f905a272889bfbcd5426
+  clientImage: orihoch/beit-hatfutsot-gentrees-app-client:97c2fc870f46df9209de6f8813789877460dffe2
+  exportImage: orihoch/beit-hatfutsot-gentrees-app-export:97c2fc870f46df9209de6f8813789877460dffe2
+  nginxImage: orihoch/beit-hatfutsot-gentrees-app-nginx:97c2fc870f46df9209de6f8813789877460dffe2
+  serverImage: orihoch/beit-hatfutsot-gentrees-app-server:97c2fc870f46df9209de6f8813789877460dffe2
