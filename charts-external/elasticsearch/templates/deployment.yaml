@@ -1,0 +1,57 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: elasticsearch
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      initContainers:
+      - name: sysctl-conf
+        image: busybox:1.26.2
+        command: ["sh", "-c", "sysctl -w vm.max_map_count=262166"]
+        securityContext:
+          privileged: true
+      - name: permissions
+        image: alpine
+        command: ["chown", "-R", "1000:1000", "/usr/share/elasticsearch/data"]
+        volumeMounts:
+        - name: elasticsearch
+          mountPath: /usr/share/elasticsearch/data
+          subPath: data
+      containers:
+      - name: elasticsearch
+        image: {{ .Values.image }}
+        ports:
+        - {containerPort: 9200}
+        resources: {{ .Values.resources }}
+        volumeMounts:
+        - name: elasticsearch
+          mountPath: /usr/share/elasticsearch/data
+          subPath: data
+        - name: elasticsearch-config
+          mountPath: /usr/share/elasticsearch/config
+      volumes:
+      - name: elasticsearch-config
+        configMap:
+          name: elasticsearch
+          items:
+          - key: xpack-log4j2.properties
+            path: xpack/log4j2.properties
+          - key: elasticsearch.yml
+            path: elasticsearch.yml
+          - key: jvm.options
+            path: jvm.options
+          - key: log4j2.properties
+            path: log4j2.properties
+          - key: _
+            path: scripts/_
+      - name: elasticsearch
+        persistentVolumeClaim:
+          claimName: {{ .Release.Namespace }}-elasticsearch

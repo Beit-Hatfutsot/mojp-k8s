@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mongoexpress
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongoexpress
+    spec:
+      containers:
+      - name: mongoexpress
+        image: mongo-express
+        env:
+        - name: ME_CONFIG_MONGODB_SERVER
+          value: mongo
+        - name: ME_CONFIG_MONGODB_ENABLE_ADMIN
+          value: "true"
+        - name: ME_CONFIG_SITE_BASEURL
+          value: /
+        ports:
+        - containerPort: 8081
+        resources:
+          requests:
+            cpu: "20m"
+            memory: "10Mi"
+          limits:
+            memory: "300Mi"
