@@ -10,6 +10,7 @@ redis:
   enabled: true
 
 global:
+  enableRootChart: false
   enableSitemap: true
   debug: false
   environmentName: production
@@ -67,7 +68,7 @@ mojp-dbs-pipelines:
 #    secretEnvFrom: clearmash
 #    GS_BUCKET_NAME: mojp-dbs-pipelines-data
 #    OUTPUT_PATH_PREFIX: clearmash-get-entity-ids-job-
-#    # INITIAL_SYNC_SCRIPT: gsutil -m rsync -r gs://sk8s-pipelines-data/noise-2017-12-06/ /pipelines/data/
+#    # INITIAL_SYNC_SCRIPT: gsutil -m rsync -x '^done|synced$' -r gs://sk8s-pipelines-data/noise-2017-12-06/ /pipelines/data/
 #    opsSecretName: ops
 #  clearmashSplitEntitiesFoldersJob: true
 #  clearmashDownloadEntitiesJob: true

@@ -32,7 +32,7 @@ spec:
               source ~/.bashrc;
               gcloud config set project "bh-org-01" &&
               echo "gs://mojp-k8s-backups/{{ .Values.global.environmentName }}/traefik-acme/`date +%Y-%m-%d-%H-%M`/" > /latest &&
-              gsutil -m rsync -r /traefik-acme `cat /latest` &&
+              gsutil -m rsync -x '^done|synced$' -r /traefik-acme `cat /latest` &&
               gsutil cp /latest gs://mojp-k8s-backups/{{ .Values.global.environmentName }}/traefik-acme/latest
             volumeMounts:
             - name: k8s-ops

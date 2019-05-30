@@ -36,11 +36,11 @@ spec:
           mkdir -p /pipelines/data/clearmash/movies &&
           mkdir -p /pipelines/data/clearmash/personalities &&
           mkdir -p /pipelines/data/clearmash/photounits &&
-          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/places/ /pipelines/data/clearmash/places/ &&
-          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/familynames/ /pipelines/data/clearmash/familynames/ &&
-          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/movies/ /pipelines/data/clearmash/movies/ &&
-          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/personalities/ /pipelines/data/clearmash/personalities/ &&
-          gsutil -m rsync -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/photounits/ /pipelines/data/clearmash/photounits/ &&
+          gsutil -m rsync -x '^done|synced$' -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/places/ /pipelines/data/clearmash/places/ &&
+          gsutil -m rsync -x '^done|synced$' -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/familynames/ /pipelines/data/clearmash/familynames/ &&
+          gsutil -m rsync -x '^done|synced$' -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/movies/ /pipelines/data/clearmash/movies/ &&
+          gsutil -m rsync -x '^done|synced$' -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/personalities/ /pipelines/data/clearmash/personalities/ &&
+          gsutil -m rsync -x '^done|synced$' -r gs://mojp-dbs-pipelines-data/2018-01-03-07-58/clearmash/photounits/ /pipelines/data/clearmash/photounits/ &&
           ls -lah /pipelines/data/clearmash/{places,familynames,movies,personalities,photounits} &&
           touch /pipelines/data/synced &&
           while true; do sleep 86400; done

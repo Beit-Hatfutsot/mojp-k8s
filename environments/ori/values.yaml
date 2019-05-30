@@ -10,10 +10,10 @@ redis:
   enabled: false
 
 global:
-  enableRootChart: true
+  enableRootChart: false
   enableSitemap: false
-  debug: false
-  environmentName: staging
+  debug: true
+  environmentName: ori
   opsRepoSlug: Beit-Hatfutsot/mojp-k8s
   opsRepoBranch: master
 
@@ -23,7 +23,7 @@ minio:
 #  persistentDiskName: dbs-production-minio-data
 
 nginx:
-  enabled: true
+  enabled: false
   htpasswdSecretName: nginx-htpasswd
 
 pipelines:
@@ -34,30 +34,31 @@ pipelines:
 #  sitemapEsIndex: mojp-prod
 
 traefik:
-  enabled: true
-  acmeDomains: |
-    [[acme.domains]]
-      main = "staging.myjewishstory.org"
-  acmeEmail: ori@uumpa.com
-#  enableCjhProxy: true
-#  frontHostRule: "Host: staging-dbs.bh.org.il;"
-  loadBalancerIP: 35.188.195.70
-#  nodeHostName: gke-mojp2-default-pool-2a2857ee-0sn6
-  rootHost: "staging.myjewishstory.org"
-  dnsProvider: cloudflare
-  CLOUDFLARE_EMAIL: ori@uumpa.com
+  enabled: false
+#  acmeDomains: |
+#    [[acme.domains]]
+#      main = "staging.myjewishstory.org"
+#  acmeEmail: ori@uumpa.com
+##  enableCjhProxy: true
+##  frontHostRule: "Host: staging-dbs.bh.org.il;"
+#  loadBalancerIP: 35.188.195.70
+##  nodeHostName: gke-mojp2-default-pool-2a2857ee-0sn6
+#  rootHost: "staging.myjewishstory.org"
+#  dnsProvider: cloudflare
+#  CLOUDFLARE_EMAIL: ori@uumpa.com
 
 kibana:
-  enabled: true
+  enabled: false
   elasticsearchUrl: http://mojp-dbs-elasticsearch:9200
 
 mojp-dbs-pipelines:
-  enabled: false
+  enabled: true
+  # these jobs will re-run only if any of the values change
 #  clearmashGetEntityIdsJob:
 #    image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:937b8dfab43bdad40f684c3d0ed23367407d478a
-#  clearmashSplitEntitiesFoldersJob:
-#    image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:7bac0da9c1777351f40f422c664a7168b52e218a
-#    input: gs://mojp-dbs-pipelines-data/2018-01-11-16-09
+  clearmashSplitEntitiesFoldersJob:
+    image: gcr.io/bh-org-01/mojp-dbs-pipelines-cd:7bac0da9c1777351f40f422c664a7168b52e218a
+    input: gs://mojp-dbs-pipelines-data/2018-01-11-16-09
 #  clearmashDownloadEntitiesJob:
 #    image: gcr.io/bh-org-01/mojp-dbs-pipelines:3670ab4098b65cc1642b35b8d8dee79f4f5bb3d5
 #    input: gs://mojp-dbs-pipelines-data/2018-01-02-10-30/clearmash/entity-ids/
@@ -66,11 +67,11 @@ mojp-dbs-pipelines:
 #    input: gs://mojp-dbs-pipelines-data/2018-01-02-12-29/clearmash/download-entities/
 
 mojp-dbs-searchapi:
-  enabled: true
+  enabled: false
   ES_HOST: mojp-dbs-elasticsearch
 
 mojp-dbs-searchapp:
-  enabled: true
+  enabled: false
 
 mojp-dbs-elasticsearch:
-  enabled: true
+  enabled: false
