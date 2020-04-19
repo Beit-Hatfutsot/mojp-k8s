@@ -98,7 +98,7 @@ spec:
         - name: traefik-acme
           mountPath: /traefik-acme
       - name: traefik
-        image: traefik
+        image: traefik:1.7
         ports:
         - {containerPort: 80}
         - {containerPort: 443}
