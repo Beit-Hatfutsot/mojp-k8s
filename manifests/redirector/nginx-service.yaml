@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redirector-nginx
+  namespace: production
+spec:
+  ports:
+  - name: "80"
+    port: 80
+  selector:
+    app: redirector-nginx

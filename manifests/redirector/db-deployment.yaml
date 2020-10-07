@@ -1,0 +1,31 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: redirector-db
+  namespace: production
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: redirector-db
+    spec:
+      containers:
+      - name: db
+        image: postgres:12@sha256:31122316d7afefa1d99d843f3a1a09a5484304183ecff7ab943b8bb94ba44ba4
+        ports:
+        - {containerPort: 5432}
+        volumeMounts:
+        - name: db
+          mountPath: /var/lib/postgresql/data
+        env:
+        - name: POSTGRES_PASSWORD
+          value: "123456"
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+      volumes:
+      - name: db
+        persistentVolumeClaim:
+          claimName: redirector-db

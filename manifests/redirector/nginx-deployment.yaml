@@ -1,0 +1,25 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: redirector-nginx
+  namespace: production
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redirector-nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable@sha256:906686ca1b8e0ec3d75bbc8604a2f4b502e4ebd317cad53867b9dcf698e798f0
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: redirector-nginx-conf
+          mountPath: /etc/nginx/conf.d
+          readOnly: true
+      volumes:
+      - name: redirector-nginx-conf
+        configMap:
+          name: redirector-nginx-conf

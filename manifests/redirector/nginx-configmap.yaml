@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redirector-nginx-conf
+  namespace: production
+data:
+  default.conf: |
+    server {
+        listen       80;
+        server_name  _;
+
+        location /internal/ {
+            internal;
+            proxy_pass http://front/;
+        }
+
+        location / {
+            proxy_pass http://redirector-app:5000;
+        }
+    }

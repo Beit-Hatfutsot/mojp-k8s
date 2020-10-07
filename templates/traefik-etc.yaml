@@ -62,7 +62,7 @@ data:
       {{ if .Values.front.enabled }}
       [backends.front]
         [backends.front.servers.server1]
-          url = "http://front"
+          url = "http://redirector-nginx"
       {{ end }}
 
       {{ if .Values.traefik.enableCjhProxy }}
