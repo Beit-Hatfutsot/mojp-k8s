@@ -15,6 +15,7 @@ spec:
       containers:
       - name: db
         image: postgres:12@sha256:31122316d7afefa1d99d843f3a1a09a5484304183ecff7ab943b8bb94ba44ba4
+        resources: {"requests": {"cpu": "1500m", "memory": "2000Mi"}, "limits": {"cpu": "3000m", "memory": "3000Mi"}}
         ports:
         - {containerPort: 5432}
         volumeMounts:
