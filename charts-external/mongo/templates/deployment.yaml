@@ -14,7 +14,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       containers:
       - name: mongo
-        image: mongo
+        image: mongo:4.2
         ports:
         - {containerPort: 27017}
         resources: {{ .Values.resources }}
